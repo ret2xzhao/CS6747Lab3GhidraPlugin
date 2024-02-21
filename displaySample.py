@@ -12,22 +12,25 @@ def displayGraph():
     generateGraph()
     display.setGraph(graph, "Test", False, monitor)
 def generateGraph():
-    A = vertex("A")
-    B = vertex("B")
-    C = vertex("C")
-    D = vertex("D")
-    edge(A, B)
-    edge(A, C)
-    edge(B, D)
-    edge(C, D)
-    edge(D, A)
+    A = vertex(graph,"A")
+    B = vertex(graph,"B")
+    C = vertex(graph,"C")
+    D = vertex(graph,"D")
+    edge(graph,A, B)
+    edge(graph,A, C)
+    edge(graph,B, D)
+    edge(graph,C, D)
+    edge(graph,D, A)
 
+    E = vertex(graph, "E")
+    F = vertex(graph, "F")
+    edge(graph, E, F)
 
-def vertex(name):
+def vertex(graph, name):
     return graph.addVertex(name, name)
 
 
-def edge(v1,v2):
+def edge(graph, v1,v2):
     return graph.addEdge(v1, v2)
 
 
