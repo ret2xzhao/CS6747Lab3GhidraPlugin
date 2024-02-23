@@ -1,105 +1,92 @@
-#@category _NEW_
-#@author YuChen Gu, Xin Zhao
-#@keybinding 
-#@menupath 
-#@toolbar 
-
 from ghidra.program.model.block import BasicBlockModel
-from ghidra.program.model.listing import CodeUnitIterator
-
-
+from ghidra.program.model.symbol import RefType
+import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
 
 functions_count = 0
 instructions_count = 0
 addresses_count = 0
 mnemonicSet = set()
 
+def create_dot_graph(func, instruction_list, jumps):
+    entry_point = "0x{}".format(func.getEntryPoint().toString().lstrip('0'))
+    dot_graph = 'digraph "{}" {{\n'.format(entry_point)
+    node_counter = 1
 
-def collect_instructions(func, func_with_instructions):
+    # Mapping from address to node name (n1, n2, ...)
+    address_to_node = {}
+
+    # Create nodes
+    for addr in instruction_list:
+        node_name = 'n{}'.format(node_counter)
+        addr_label = "0x{}".format(addr)  # Ensure '0x' prefix here
+        dot_graph += '    {} [label = "{};"];\n'.format(node_name, addr_label)
+        address_to_node[addr] = node_name
+        node_counter += 1
+
+    dot_graph += '\n'  # Empty line between nodes and edges
+
+    # Sequential edges and jump edges integrated into flow
+    for i, addr in enumerate(instruction_list):
+        if i+1 < len(instruction_list):
+            current_node = address_to_node[addr]
+            next_addr = instruction_list[i+1]
+            next_node = address_to_node[next_addr]
+            
+            # If current instruction has a jump, draw it accordingly
+            if addr in jumps and jumps[addr] in address_to_node:
+                jump_node = address_to_node[jumps[addr]]
+                # Draw dotted line for jump
+                dot_graph += '    {} -> {} [jump];\n'.format(current_node, jump_node)
+                if jumps[addr] != next_addr:  # If the jump is not to the next sequential instruction, continue
+                    continue
+            
+            # Draw normal flow
+            dot_graph += '    {} -> {};\n'.format(current_node, next_node)
+
+    dot_graph += '}'
+    return dot_graph
+
+def collect_instructions(func):
     global instructions_count
     global addresses_count
+    instruction_list = []
+    jumps = {}  # src_addr -> dst_addr as hex string without leading zeros
 
-
-    # Create a basic block model
     basicBlockModel = BasicBlockModel(currentProgram)
-    
-    # Get address set for the function
+    monitor = ConsoleTaskMonitor()
+    addrSet = func.getBody()
+    codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
 
-    addrSet = func.getBody() # <type 'ghidra.program.model.address.AddressSet'>
-    
-    # Get iterator for code blocks
-    codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, getMonitor()) # <type 'ghidra.program.model.block.SimpleBlockIterator'>
-
-    # Iterate through code blocks and collect basic blocks
     while codeBlockIter.hasNext():
-        codeBlock = codeBlockIter.next() # <type 'ghidra.program.model.block.CodeBlockImpl'>
-        addressIterator = codeBlock.getAddresses(True) # Get all addresses within the block
-
-        # Iterate over each address and display the instruction
-        while addressIterator.hasNext():
-            address = addressIterator.next()
-            instruction = getInstructionAt(address)
+        code_block = codeBlockIter.next()
+        for addr in code_block.getAddresses(True):
+            instruction = getInstructionAt(addr)
             if instruction:
-
+                addr_str = addr.toString()[2:]  # Remove the "0x" and keep the rest
+                instruction_list.append(addr_str)
                 addresses_count += 1
                 instructions_count += 1
-                getMnemonicSet(instruction)
-                address_instruction  = "%s : %s" % (address.toString(), instruction.toString())
-                if func in func_with_instructions:
-                    func_with_instructions[func].append(address_instruction)
-                else:
-                    func_with_instructions[func] = [address_instruction]
+                # Check for jumps and add to jumps dictionary
+                if instruction.getFlowType().isJump() and instruction.getFlows():
+                    dst_addr = instruction.getFlows()[0].toString()[2:]  # Likewise, remove "0x"
+                    jumps[addr_str] = dst_addr
 
+    instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
+    return create_dot_graph(func, instruction_list, jumps)
 
-def process_functions(func_with_instructions):
-    """
-    Process all functions in the binary.
-    """
+def process_functions():
     global functions_count
     function_manager = currentProgram.getFunctionManager()
+    functions = function_manager.getFunctions(True)
     
-    # Iterate through all functions
-
-    for func in function_manager.getFunctions(True): # <type 'ghidra.program.database.function.FunctionDB'>
-        #print(func) # Print function name
-        func_address = func.getEntryPoint()
-        func_info = "{}: {}".format(func, func_address)
-        #print(func_info)
+    for func in functions:
         functions_count += 1
-        collect_instructions(func, func_with_instructions) # Get basic blocks for the function
-
-
-def generate_DOT_directed_graph(func_with_first_address):
-    function_manager = currentProgram.getFunctionManager()
-    
-    # Iterate through all functions
-    for func in function_manager.getFunctions(True):
-        func_address = func.getEntryPoint()
-        if func in func_with_first_address:
-            func_with_first_address[func].append(func_address)
-        else:
-            func_with_first_address[func] = [func_address]
-
-
-def getMnemonicSet(instruction):
-    global mnemonicSet
-    mnemonicSet.add(instruction.getMnemonicString())
-    return mnemonicSet
-
-
-def displayInfo(func_with_instructions):
-    print("{} functions, {} addresses, {} instructions in total.".format(functions_count, addresses_count, instructions_count))
-    print(func_with_instructions)
-    # mnemonicSet: set([u'RET', u'ADD', u'CALL', u'JL', u'JLE', u'SAR', u'JBE', u'JZ', u'MOVZX', u'JNZ', u'LEAVE', u'IMUL', u'SHR', u'SUB', u'OR', u'DEC', u'CMP', u'LEA', u'JMP', u'POP', u'MOV', u'TEST', u'AND', u'JA', u'JC', u'XOR', u'STOSD.REP', u'MOVSX', u'SETNZ', u'JG', u'JNC', u'PUSH', u'INC'])
-    #print(mnemonicSet)
-
-
+        dot_graph = collect_instructions(func)
+        print(dot_graph)
 
 def main():
-    func_with_instructions = {}
-    process_functions(func_with_instructions)
-
-    displayInfo(func_with_instructions)
+    process_functions()
+    print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count, instructions_count))
 
 if __name__ == '__main__':
     main()
