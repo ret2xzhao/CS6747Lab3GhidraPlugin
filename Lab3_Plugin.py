@@ -1,8 +1,8 @@
+import os
 from ghidra.program.model.block import BasicBlockModel
 import ghidra.program.model.lang.OperandType as OperandType
 import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
-# from ghidra.program.model.listing import Instruction
 from ghidra.program.model.lang import Register
 
 functions_count = 0
@@ -20,7 +20,6 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
     # Create nodes
     for addr in instruction_list:
         node_name = 'n{}'.format(node_counter)
-
         addr_label = "0x{}".format(addr)  # Ensure '0x' prefix
         # Assign a label with define-use information if available
         if addr in def_use_info:
@@ -34,7 +33,6 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
     dot_graph += '\n'  # Separate nodes from edges
 
     # Add edges between nodes based on sequential and jump instructions:
-
     for i, addr in enumerate(instruction_list):
         if i + 1 < len(instruction_list):
             current_node = address_to_node[addr]
@@ -231,6 +229,7 @@ def collect_instructions(func):
 
 def process_functions():
     global functions_count
+    final_result = ""
     function_manager = currentProgram.getFunctionManager()
     functions = function_manager.getFunctions(True)
 
@@ -238,13 +237,26 @@ def process_functions():
         functions_count += 1
         dot_graph = collect_instructions(func)
         print(dot_graph)
+        final_result += dot_graph + "\n\n"
 
+    return final_result
 
 def main():
-    process_functions()
-    print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
-                                                                          instructions_count))
+    try:
+        final_result = process_functions()
+        print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
+                                                                              instructions_count))
+        # Define the file path to the Desktop directory
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        file_path = os.path.join(desktop_path, "submission.dot")
 
+        # Attempt to write content to the file
+        with open(file_path, "w") as file:
+            file.write(final_result)
+
+        print("submission.dot created.")
+    except Exception as e:
+        raise Exception("Failed to create submission.dot. Error: {}".format(e))
 
 if __name__ == '__main__':
     main()
