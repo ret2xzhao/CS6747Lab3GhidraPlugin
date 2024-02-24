@@ -1,6 +1,9 @@
 from ghidra.program.model.block import BasicBlockModel
-
+import ghidra.program.model.lang.OperandType as OperandType
+import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
+# from ghidra.program.model.listing import Instruction
+from ghidra.program.model.lang import Register
 
 functions_count = 0
 instructions_count = 0
@@ -13,7 +16,6 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
     dot_graph = 'digraph "{}" {{\n'.format(entry_point)
     node_counter = 1
     address_to_node = {}  # Maps addresses to node names
-
 
     # Create nodes
     for addr in instruction_list:
@@ -34,11 +36,10 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
     # Add edges between nodes based on sequential and jump instructions:
 
     for i, addr in enumerate(instruction_list):
-        if i+1 < len(instruction_list):
+        if i + 1 < len(instruction_list):
             current_node = address_to_node[addr]
-            next_addr = instruction_list[i+1]
+            next_addr = instruction_list[i + 1]
             next_node = address_to_node[next_addr]
-
 
             # Check if the current instruction is a jump and add an edge accordingly
             if addr in jumps:
@@ -46,7 +47,7 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
                 # Draw line for jump with style based on jump type
                 jump_style = 'conditional_jump' if addr in conditional_jumps else 'unconditional_jump'
                 dot_graph += '    {} -> {}; [{}]\n'.format(current_node, jump_to_node, jump_style)
-                
+
                 # For conditional jumps, also connect to the next sequential instruction
                 if addr in conditional_jumps:
                     dot_graph += '    {} -> {};\n'.format(current_node, next_node)
@@ -57,89 +58,120 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
                 # Draw normal flow for sequential instructions
                 dot_graph += '    {} -> {};\n'.format(current_node, next_node)
 
-
     dot_graph += '}'
     return dot_graph
 
 
+def operandRegisterHelper(instruction, defs, uses, addr_str):
+    numOperand = instruction.getNumOperands()
+    for i in range(numOperand):
+        operand = instruction.getRegister(i)
+        if operand is not None:  # check if is register
+            opType = instruction.getOperandRefType(i)
+            if opType.isConditional() and opType.isFlow():
+                uses.append("eflags")
+            if opType.isRead():
+                if str(operand) not in uses:
+                    uses.append(str(operand))
+            if opType.isWrite():
+                if str(operand) not in defs:
+                    defs.append(str(operand))
+
+        else:  # check if is offest
+            refListing = instruction.getDefaultOperandRepresentationList(i)
+            refSpec = instruction.getDefaultOperandRepresentation(i)
+            for element in refListing:
+                if isinstance(element, Register):
+                    opType = instruction.getOperandRefType(i)
+                    if opType.isRead():
+                        if str(refSpec) not in uses:
+                            uses.append(str(refSpec))
+                        if str(element) not in uses:
+                            uses.append(str(element))
+                    if opType.isWrite():
+                        if str(refSpec) not in defs:
+                            defs.append(str(refSpec))
+                        if str(element) not in defs:
+                            uses.append(str(element))
+
+
+
 def analyze_instruction(instruction, addr_str):
     # Define a set of mnemonics (assembly instructions) to be analyzed.
-    mnemonicSet = {'ADD', 'AND', 'CALL', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP', 'JNC', 'JNZ', 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR', 'SETNZ', 'SHR', 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
-    remainSet = {'ADD', 'AND', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP', 'JNC', 'JNZ', 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR', 'SETNZ', 'SHR', 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
+    mnemonicSet = {'ADD', 'AND', 'CALL', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP',
+                   'JNC', 'JNZ', 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR',
+                   'SETNZ', 'SHR', 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
+    remainSet = {'ADD', 'AND', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP', 'JNC', 'JNZ',
+                 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR', 'SETNZ', 'SHR',
+                 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
 
     mnemonic = instruction.getMnemonicString()
     defs = []  # List to hold defined variables
     uses = []  # List to hold used variables
+    '''
 
+    '''
+    operandRegisterHelper(instruction, defs, uses, addr_str)
     # Ignore 'CALL' instructions
     if mnemonic == 'CALL':
-        return
+        pass
     # Analyze instruction based on its type and collect define-use information
-    elif mnemonic == 'ADD':
-        pass
-    elif mnemonic == 'AND':
-        pass
-    elif mnemonic == 'CALL':
+    elif mnemonic == 'ADD' or mnemonic == 'SUB':
+        # operandRegisterHelper(instruction, defs, uses, addr_str)
+        if 'eflags' not in defs:
+            defs.append('eflags')
+    elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':
         pass
     elif mnemonic == 'CMP':
-        pass
-    elif mnemonic == 'DEC':
-        pass
+        # operandRegisterHelper(instruction, defs, uses, addr_str)
+        if 'eflags' not in defs:
+            defs.append('eflags')
     elif mnemonic == 'IMUL':
         pass
-    elif mnemonic == 'INC':
+    elif mnemonic == 'INC' or mnemonic == 'DEC':
+        # operandRegisterHelper(instruction, defs, uses, addr_str)
         pass
-    elif mnemonic == 'JA':
-        pass
-    elif mnemonic == 'JBE':
-        pass
-    elif mnemonic == 'JC':
-        pass
-    elif mnemonic == 'JG':
-        pass
-    elif mnemonic == 'JL':
-        pass
-    elif mnemonic == 'JLE':
+    elif mnemonic in ['JA', 'JZ', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JNC', 'JNZ']:
+        # uses.append('eflags')
         pass
     elif mnemonic == 'JMP':
-        pass
-    elif mnemonic == 'JNC':
-        pass
-    elif mnemonic == 'JNZ':
-        pass
-    elif mnemonic == 'JZ':
         pass
     elif mnemonic == 'LEA':
         pass
     elif mnemonic == 'LEAVE':
         pass
     elif mnemonic == 'MOV':
+        # operandRegisterHelper(instruction, defs, uses, addr_str)
         pass
     elif mnemonic == 'MOVSX':
         pass
     elif mnemonic == 'MOVZX':
         pass
-    elif mnemonic == 'OR':
-        pass
     elif mnemonic == 'POP':
         pass
     elif mnemonic == 'PUSH':
-        pass
+        if 'ESP' not in defs:
+            defs.append('ESP')
+        if '[ESP]' not in defs:
+            defs.append('[ESP]')
+        if 'ESP' not in uses:
+            uses.append('ESP')
     elif mnemonic == 'RET':
-        pass
-    elif mnemonic == 'SAR':
+        if 'ESP' not in uses:
+            defs.append('ESP')
+        if '[ESP]' not in uses:
+            defs.append('[ESP]')
+        if 'ESP' not in defs:
+            uses.append('ESP')
+    elif mnemonic == 'SAR' or mnemonic == 'SAL':
         pass
     elif mnemonic == 'SETNZ':
         pass
-    elif mnemonic == 'SHR':
+    elif mnemonic == 'SHR' or mnemonic == 'SHL':
         pass
     elif mnemonic == 'STOSD.REP':
         pass
-    elif mnemonic == 'SUB':
-        pass
     elif mnemonic == 'TEST':
-        pass
-    elif mnemonic == 'XOR':
         pass
     else:
         return
@@ -152,6 +184,7 @@ def analyze_instruction(instruction, addr_str):
 def is_in_eflags(register):
     EFLAGS = {"CF", "PF", "AF", "ZF", "SF", "OF", "DF", "TF", "IF", "IOPL", "NT", "RF", "VM", "AC", "VIF", "VIP", "ID"}
     return register in EFLAGS
+
 
 def collect_instructions(func):
     global addresses_count
@@ -168,7 +201,6 @@ def collect_instructions(func):
     monitor = ConsoleTaskMonitor()
     addrSet = func.getBody()
     codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
-
 
     # Iterate through blocks and instructions to collect information
     while codeBlockIter.hasNext():
@@ -201,15 +233,18 @@ def process_functions():
     global functions_count
     function_manager = currentProgram.getFunctionManager()
     functions = function_manager.getFunctions(True)
-    
+
     for func in functions:
         functions_count += 1
         dot_graph = collect_instructions(func)
         print(dot_graph)
 
+
 def main():
     process_functions()
-    print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count, instructions_count))
+    print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
+                                                                          instructions_count))
+
 
 if __name__ == '__main__':
     main()
