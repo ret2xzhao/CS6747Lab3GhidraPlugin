@@ -1,9 +1,11 @@
 from ghidra.program.model.block import BasicBlockModel
+
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
 
 functions_count = 0
 instructions_count = 0
 addresses_count = 0
+
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_info):
     # Convert the entry point to a hexadecimal string.
@@ -12,9 +14,11 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
     node_counter = 1
     address_to_node = {}  # Maps addresses to node names
 
+
     # Create nodes
     for addr in instruction_list:
         node_name = 'n{}'.format(node_counter)
+
         addr_label = "0x{}".format(addr)  # Ensure '0x' prefix
         # Assign a label with define-use information if available
         if addr in def_use_info:
@@ -28,11 +32,13 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
     dot_graph += '\n'  # Separate nodes from edges
 
     # Add edges between nodes based on sequential and jump instructions:
+
     for i, addr in enumerate(instruction_list):
         if i+1 < len(instruction_list):
             current_node = address_to_node[addr]
             next_addr = instruction_list[i+1]
             next_node = address_to_node[next_addr]
+
 
             # Check if the current instruction is a jump and add an edge accordingly
             if addr in jumps:
@@ -51,8 +57,10 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
                 # Draw normal flow for sequential instructions
                 dot_graph += '    {} -> {};\n'.format(current_node, next_node)
 
+
     dot_graph += '}'
     return dot_graph
+
 
 def analyze_instruction(instruction, addr_str):
     # Define a set of mnemonics (assembly instructions) to be analyzed.
@@ -155,10 +163,12 @@ def collect_instructions(func):
     def_use_info = {}  # Maps addresses to define-use information
 
     # Initialize the basic block model and task monitor
+
     basicBlockModel = BasicBlockModel(currentProgram)
     monitor = ConsoleTaskMonitor()
     addrSet = func.getBody()
     codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
+
 
     # Iterate through blocks and instructions to collect information
     while codeBlockIter.hasNext():
@@ -185,6 +195,7 @@ def collect_instructions(func):
 
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
     return create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_info)
+
 
 def process_functions():
     global functions_count
