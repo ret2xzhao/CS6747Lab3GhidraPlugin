@@ -3,6 +3,9 @@ from ghidra.program.model.block import BasicBlockModel
 from ghidra.program.model.lang import OperandType, Register
 import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
+from ghidra.program.model.lang import Register
+
+
 
 functions_count = 0
 addresses_count = 0
@@ -10,10 +13,12 @@ instructions_count = 0
 
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
+
     """
     Generates a DOT graph representation of the control flow within a function.
     """
     # Convert the entry point of the function to a hexadecimal string
+
     entry_point = "0x{}".format(func.getEntryPoint().toString().lstrip('0'))
     dot_graph = 'digraph "{}" {{\n'.format(entry_point)
     node_counter = 1
@@ -186,8 +191,10 @@ def collect_instructions(func):
 
     instruction_list = []
     jumps = {}  # Maps source to destination addresses for jumps
+
     conditional_jumps = set()  # Addresses of conditional jumps
     ret_instructions = set() # Addresses of return instructions
+
     def_use_info = {}  # Maps addresses to define-use information
 
     # Initialize the basic block model and task monitor
