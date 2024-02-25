@@ -3,23 +3,28 @@ from ghidra.program.model.block import BasicBlockModel
 from ghidra.program.model.lang import OperandType, Register
 import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
-
 from ghidra.program.model.lang import Register
 
 
+
 functions_count = 0
-instructions_count = 0
 addresses_count = 0
+instructions_count = 0
 
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
-    # Convert the entry point to a hexadecimal string.
+
+    """
+    Generates a DOT graph representation of the control flow within a function.
+    """
+    # Convert the entry point of the function to a hexadecimal string
+
     entry_point = "0x{}".format(func.getEntryPoint().toString().lstrip('0'))
     dot_graph = 'digraph "{}" {{\n'.format(entry_point)
     node_counter = 1
     address_to_node = {}  # Maps addresses to node names
 
-    # Create nodes
+    # Create graph nodes for each instruction address
     for addr in instruction_list:
         node_name = 'n{}'.format(node_counter)
         addr_label = "0x{}".format(addr)  # Ensure '0x' prefix
@@ -47,8 +52,9 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instr
             if addr in jumps:
                 jump_to_node = address_to_node[jumps[addr]]
                 # Draw line for jump with style based on jump type
-                jump_style = 'conditional_jump' if addr in conditional_jumps else 'unconditional_jump'
-                dot_graph += '    {} -> {}; [{}]\n'.format(current_node, jump_to_node, jump_style)
+                #jump_style = 'conditional_jump' if addr in conditional_jumps else 'unconditional_jump'
+                #dot_graph += '    {} -> {}; [{}]\n'.format(current_node, jump_to_node, jump_style)
+                dot_graph += '    {} -> {};\n'.format(current_node, jump_to_node)
 
                 # For conditional jumps, also connect to the next sequential instruction
                 if addr in conditional_jumps:
@@ -64,23 +70,24 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
     numOperand = instruction.getNumOperands()
     for i in range(numOperand):
         operand = instruction.getRegister(i)
-        if operand is not None:  # check if is register
-            opType = instruction.getOperandRefType(i)
+        opType = instruction.getOperandRefType(i)
+        
+        # Check if operand is a register and update uses/defs lists accordingly
+        if operand is not None:
             if opType.isConditional() and opType.isFlow():
-                uses.append("eflags")
-            if opType.isRead():
-                if str(operand) not in uses:
+                if "eflags" not in uses:
+                    uses.append("eflags")
+            if opType.isRead() and str(operand) not in uses:
                     uses.append(str(operand))
-            if opType.isWrite():
-                if str(operand) not in defs:
+            if opType.isWrite() and str(operand) not in defs:
                     defs.append(str(operand))
 
-        else:  # check if is offest
+        # Handle memory references involving registers
+        else:
             refListing = instruction.getDefaultOperandRepresentationList(i)
             refSpec = instruction.getDefaultOperandRepresentation(i)
             for element in refListing:
                 if isinstance(element, Register):
-                    opType = instruction.getOperandRefType(i)
                     if opType.isRead():
                         if str(refSpec) not in uses:
                             uses.append(str(refSpec))
@@ -90,8 +97,7 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
                         if str(refSpec) not in defs:
                             defs.append(str(refSpec))
                         if str(element) not in defs:
-                            uses.append(str(element))
-
+                            defs.append(str(element))
 
 
 def analyze_instruction(instruction, addr_str):
@@ -99,16 +105,11 @@ def analyze_instruction(instruction, addr_str):
     mnemonicSet = {'ADD', 'AND', 'CALL', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP',
                    'JNC', 'JNZ', 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR',
                    'SETNZ', 'SHR', 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
-    remainSet = {'ADD', 'AND', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP', 'JNC', 'JNZ',
-                 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR', 'SETNZ', 'SHR',
-                 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
 
     mnemonic = instruction.getMnemonicString()
     defs = []  # List to hold defined variables
     uses = []  # List to hold used variables
-    '''
 
-    '''
     operandRegisterHelper(instruction, defs, uses, addr_str)
     # Ignore 'CALL' instructions
     if mnemonic == 'CALL':
@@ -175,7 +176,7 @@ def analyze_instruction(instruction, addr_str):
         return
 
     # Generate and return the define-use label without handling 'CALL'
-    def_use_label = "D: {} U: {}".format(", ".join(defs), ", ".join(uses))
+    def_use_label = "D: {} U: {}".format(", ".join(sorted(defs)), ", ".join(sorted(uses)))
     return def_use_label
 
 
@@ -190,12 +191,13 @@ def collect_instructions(func):
 
     instruction_list = []
     jumps = {}  # Maps source to destination addresses for jumps
-    conditional_jumps = set()  # Holds source addresses of conditional jumps
-    ret_instructions = set()
+
+    conditional_jumps = set()  # Addresses of conditional jumps
+    ret_instructions = set() # Addresses of return instructions
+
     def_use_info = {}  # Maps addresses to define-use information
 
     # Initialize the basic block model and task monitor
-
     basicBlockModel = BasicBlockModel(currentProgram)
     monitor = ConsoleTaskMonitor()
     addrSet = func.getBody()
