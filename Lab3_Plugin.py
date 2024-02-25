@@ -84,22 +84,37 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
 
         # Handle memory references involving registers
         else:
+            thisDynamic = ''
+            isPart = False
+            isInstance = False
+            isRead = False
+            isWrite = False
+            eor = False
             refListing = instruction.getDefaultOperandRepresentationList(i)
-            refSpec = instruction.getDefaultOperandRepresentation(i)
             for element in refListing:
+                if isPart:
+                    thisDynamic += str(element)
+                if element == '[':
+                    isPart = True
+                    thisDynamic += str(element)
+                if element == ']':
+                    isPart = False
+                    eor = True
                 if isinstance(element, Register):
+                    isInstance = True
                     if opType.isRead():
-                        if str(refSpec) not in uses:
-                            uses.append(str(refSpec))
+                        isRead = True
                         if str(element) not in uses:
                             uses.append(str(element))
                     if opType.isWrite():
-                        if str(refSpec) not in defs:
-                            defs.append(str(refSpec))
+                        isWrite = True
                         if str(element) not in defs:
                             defs.append(str(element))
-
-
+                if isInstance and eor:
+                    if (thisDynamic not in uses) and isRead:
+                        uses.append(thisDynamic)
+                    if (thisDynamic not in defs) and isWrite:
+                        defs.append(thisDynamic)
 def analyze_instruction(instruction, addr_str):
     # Define a set of mnemonics (assembly instructions) to be analyzed.
     mnemonicSet = {'ADD', 'AND', 'CALL', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP',
@@ -120,25 +135,29 @@ def analyze_instruction(instruction, addr_str):
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':
-        pass
+        if 'eflags' not in defs:
+            defs.append('eflags')
     elif mnemonic == 'CMP':
         # operandRegisterHelper(instruction, defs, uses, addr_str)
         if 'eflags' not in defs:
             defs.append('eflags')
-    elif mnemonic == 'IMUL':
-        pass
+    elif mnemonic == 'IMUL' or mnemonic == 'MUL':
+        if 'eflags' not in defs:
+            defs.append('eflags')
     elif mnemonic == 'INC' or mnemonic == 'DEC':
-        # operandRegisterHelper(instruction, defs, uses, addr_str)
         pass
     elif mnemonic in ['JA', 'JZ', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JNC', 'JNZ']:
-        # uses.append('eflags')
-        pass
+        if 'eflags' not in uses:
+            uses.append('eflags')
     elif mnemonic == 'JMP':
         pass
     elif mnemonic == 'LEA':
         pass
     elif mnemonic == 'LEAVE':
-        pass
+        defs.append('EBP')
+        defs.append('ESP')
+        uses.append('EBP')
+        uses.append('[EBP]')
     elif mnemonic == 'MOV':
         # operandRegisterHelper(instruction, defs, uses, addr_str)
         pass
@@ -147,7 +166,12 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'MOVZX':
         pass
     elif mnemonic == 'POP':
-        pass
+        if 'ESP' not in defs:
+            defs.append('ESP')
+        if '[ESP]' not in uses:
+            uses.append('[ESP]')
+        if 'ESP' not in uses:
+            uses.append('ESP')
     elif mnemonic == 'PUSH':
         if 'ESP' not in defs:
             defs.append('ESP')
@@ -165,13 +189,20 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'SAR' or mnemonic == 'SAL':
         pass
     elif mnemonic == 'SETNZ':
-        pass
+        if 'eflags' not in uses:
+            uses.append('eflags')
     elif mnemonic == 'SHR' or mnemonic == 'SHL':
         pass
     elif mnemonic == 'STOSD.REP':
-        pass
+        defs = []
+        defs.append('[EDI]')
+        defs.append('EDI')
+        uses.append('EAX')
+        uses.append('EDI')
+        uses.append('eflags')
     elif mnemonic == 'TEST':
-        pass
+        if 'eflags' not in defs:
+            defs.append('eflags')
     else:
         return
 
