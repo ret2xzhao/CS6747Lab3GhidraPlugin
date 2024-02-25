@@ -1,16 +1,18 @@
 import os
 from ghidra.program.model.block import BasicBlockModel
-import ghidra.program.model.lang.OperandType as OperandType
+from ghidra.program.model.lang import OperandType, Register
 import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
+
 from ghidra.program.model.lang import Register
+
 
 functions_count = 0
 instructions_count = 0
 addresses_count = 0
 
 
-def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_info):
+def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
     # Convert the entry point to a hexadecimal string.
     entry_point = "0x{}".format(func.getEntryPoint().toString().lstrip('0'))
     dot_graph = 'digraph "{}" {{\n'.format(entry_point)
@@ -34,6 +36,8 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
 
     # Add edges between nodes based on sequential and jump instructions:
     for i, addr in enumerate(instruction_list):
+        if addr in ret_instructions:  # Skip edge creation for RET instructions
+            continue
         if i + 1 < len(instruction_list):
             current_node = address_to_node[addr]
             next_addr = instruction_list[i + 1]
@@ -49,11 +53,7 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_i
                 # For conditional jumps, also connect to the next sequential instruction
                 if addr in conditional_jumps:
                     dot_graph += '    {} -> {};\n'.format(current_node, next_node)
-                # Skip connecting to the next node if the jump is unconditional and not to the next instruction
-                elif jumps[addr] != next_addr:
-                    continue
-            else:
-                # Draw normal flow for sequential instructions
+            elif next_node:  # Ensure sequential flow except for RET instructions
                 dot_graph += '    {} -> {};\n'.format(current_node, next_node)
 
     dot_graph += '}'
@@ -191,6 +191,7 @@ def collect_instructions(func):
     instruction_list = []
     jumps = {}  # Maps source to destination addresses for jumps
     conditional_jumps = set()  # Holds source addresses of conditional jumps
+    ret_instructions = set()
     def_use_info = {}  # Maps addresses to define-use information
 
     # Initialize the basic block model and task monitor
@@ -215,6 +216,10 @@ def collect_instructions(func):
                 def_use_label = analyze_instruction(instruction, addr_str)
                 def_use_info[addr_str] = def_use_label
 
+                # Check if the current instruction is a 'RET' instruction. If so, add its address to the "ret_instructions" set.
+                if instruction.getMnemonicString() == 'RET':
+                    ret_instructions.add(addr_str)
+
                 # Record jump instructions
                 if instruction.getFlowType().isJump() and instruction.getFlows():
                     dst_addr = instruction.getFlows()[0].toString()[2:]  # Extract address without "0x"
@@ -224,7 +229,7 @@ def collect_instructions(func):
                         conditional_jumps.add(addr_str)
 
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
-    return create_dot_graph(func, instruction_list, jumps, conditional_jumps, def_use_info)
+    return create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
 
 
 def process_functions():
