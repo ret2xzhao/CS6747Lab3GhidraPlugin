@@ -4,6 +4,9 @@ from ghidra.program.model.lang import OperandType, Register
 import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
 
+from ghidra.program.model.lang import Register
+
+
 functions_count = 0
 instructions_count = 0
 addresses_count = 0
