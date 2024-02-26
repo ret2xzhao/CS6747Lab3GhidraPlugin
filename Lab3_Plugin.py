@@ -6,19 +6,16 @@ import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
 from ghidra.program.model.lang import Register
 
 
-
 functions_count = 0
 addresses_count = 0
 instructions_count = 0
 
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
-
     """
     Generates a DOT graph representation of the control flow within a function.
     """
     # Convert the entry point of the function to a hexadecimal string
-
     entry_point = "0x{}".format(func.getEntryPoint().toString().lstrip('0'))
     dot_graph = 'digraph "{}" {{\n'.format(entry_point)
     node_counter = 1
@@ -70,7 +67,7 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
     numOperand = instruction.getNumOperands()
     for i in range(numOperand):
         operand = instruction.getRegister(i)
-        opType = instruction.getOperandRefType(i)
+        opType  = instruction.getOperandRefType(i)
         
         # Check if operand is a register and update uses/defs lists accordingly
         if operand is not None:
@@ -115,6 +112,8 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
                         uses.append(thisDynamic)
                     if (thisDynamic not in defs) and isWrite:
                         defs.append(thisDynamic)
+
+
 def analyze_instruction(instruction, addr_str):
     # Define a set of mnemonics (assembly instructions) to be analyzed.
     mnemonicSet = {'ADD', 'AND', 'CALL', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP',
@@ -131,21 +130,20 @@ def analyze_instruction(instruction, addr_str):
         pass
     # Analyze instruction based on its type and collect define-use information
     elif mnemonic == 'ADD' or mnemonic == 'SUB':
-        # operandRegisterHelper(instruction, defs, uses, addr_str)
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'CMP':
-        # operandRegisterHelper(instruction, defs, uses, addr_str)
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'IMUL' or mnemonic == 'MUL':
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'INC' or mnemonic == 'DEC':
-        pass
+        if 'eflags' not in defs:
+            defs.append('eflags')
     elif mnemonic in ['JA', 'JZ', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JNC', 'JNZ']:
         if 'eflags' not in uses:
             uses.append('eflags')
@@ -159,7 +157,6 @@ def analyze_instruction(instruction, addr_str):
         uses.append('EBP')
         uses.append('[EBP]')
     elif mnemonic == 'MOV':
-        # operandRegisterHelper(instruction, defs, uses, addr_str)
         pass
     elif mnemonic == 'MOVSX':
         pass
@@ -181,18 +178,20 @@ def analyze_instruction(instruction, addr_str):
             uses.append('ESP')
     elif mnemonic == 'RET':
         if 'ESP' not in uses:
-            defs.append('ESP')
-        if '[ESP]' not in uses:
-            defs.append('[ESP]')
-        if 'ESP' not in defs:
             uses.append('ESP')
+        if '[ESP]' not in uses:
+            uses.append('[ESP]')
+        if 'ESP' not in defs:
+            defs.append('ESP')
     elif mnemonic == 'SAR' or mnemonic == 'SAL':
-        pass
+        if 'eflags' not in defs:
+            defs.append('eflags')
     elif mnemonic == 'SETNZ':
         if 'eflags' not in uses:
             uses.append('eflags')
     elif mnemonic == 'SHR' or mnemonic == 'SHL':
-        pass
+        if 'eflags' not in defs:
+            defs.append('eflags')
     elif mnemonic == 'STOSD.REP':
         defs = []
         defs.append('[EDI]')
@@ -222,10 +221,8 @@ def collect_instructions(func):
 
     instruction_list = []
     jumps = {}  # Maps source to destination addresses for jumps
-
     conditional_jumps = set()  # Addresses of conditional jumps
-    ret_instructions = set() # Addresses of return instructions
-
+    ret_instructions = set()  # Addresses of return instructions
     def_use_info = {}  # Maps addresses to define-use information
 
     # Initialize the basic block model and task monitor
@@ -279,6 +276,7 @@ def process_functions():
 
     return final_result
 
+
 def main():
     try:
         final_result = process_functions()
@@ -291,8 +289,8 @@ def main():
         # Attempt to write content to the file
         with open(file_path, "w") as file:
             file.write(final_result)
-
         print("submission.dot created.")
+
     except Exception as e:
         raise Exception("Failed to create submission.dot. Error: {}".format(e))
 
