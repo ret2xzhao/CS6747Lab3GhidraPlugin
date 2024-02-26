@@ -184,14 +184,18 @@ def analyze_instruction(instruction, addr_str):
         if 'ESP' not in defs:
             defs.append('ESP')
     elif mnemonic == 'SAR' or mnemonic == 'SAL':
+
         if 'eflags' not in defs:
             defs.append('eflags')
+
     elif mnemonic == 'SETNZ':
         if 'eflags' not in uses:
             uses.append('eflags')
     elif mnemonic == 'SHR' or mnemonic == 'SHL':
+
         if 'eflags' not in defs:
             defs.append('eflags')
+
     elif mnemonic == 'STOSD.REP':
         defs = []
         defs.append('[EDI]')
