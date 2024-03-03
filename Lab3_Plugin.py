@@ -1,4 +1,5 @@
 import os
+import re
 from ghidra.program.model.block import BasicBlockModel
 from ghidra.program.model.lang import OperandType, Register
 import ghidra.program.model.symbol.RefType as RefType
@@ -125,9 +126,14 @@ def analyze_instruction(instruction, addr_str):
     uses = []  # List to hold used variables
 
     operandRegisterHelper(instruction, defs, uses, addr_str)
-    # Ignore 'CALL' instructions
     if mnemonic == 'CALL':
-        pass
+        callTargetRepresentation = instruction.getDefaultOperandRepresentation(0)
+        addressMatch = re.search(r'\[([0-9a-fx]+)\]', callTargetRepresentation, re.IGNORECASE)
+        if addressMatch:
+            callTarget = '[{}]'.format(addressMatch.group(1))
+        else:
+            callTarget = callTargetRepresentation
+        uses.append(callTarget)
     # Analyze instruction based on its type and collect define-use information
     elif mnemonic == 'ADD' or mnemonic == 'SUB':
         if 'eflags' not in defs:
@@ -150,7 +156,15 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'JMP':
         pass
     elif mnemonic == 'LEA':
-        pass
+        destReg = instruction.getRegister(0)
+        if destReg is not None and str(destReg) not in defs:
+            defs.append(str(destReg))
+        sourceOperand = instruction.getDefaultOperandRepresentation(1)
+        memoryRefMatch = re.search(r'\[(.*?)\]', sourceOperand)
+        foundRegisters = set(re.findall(r'\b([a-zA-Z]+)\b', memoryRefMatch.group(1)))
+        for reg in foundRegisters:
+            if reg not in uses:
+                uses.append(reg)
     elif mnemonic == 'LEAVE':
         defs.append('EBP')
         defs.append('ESP')
@@ -184,18 +198,14 @@ def analyze_instruction(instruction, addr_str):
         if 'ESP' not in defs:
             defs.append('ESP')
     elif mnemonic == 'SAR' or mnemonic == 'SAL':
-
         if 'eflags' not in defs:
             defs.append('eflags')
-
     elif mnemonic == 'SETNZ':
         if 'eflags' not in uses:
             uses.append('eflags')
     elif mnemonic == 'SHR' or mnemonic == 'SHL':
-
         if 'eflags' not in defs:
             defs.append('eflags')
-
     elif mnemonic == 'STOSD.REP':
         defs = []
         defs.append('[EDI]')
