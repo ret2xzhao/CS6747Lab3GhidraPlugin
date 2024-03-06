@@ -1,4 +1,5 @@
 import os
+import re
 from ghidra.program.model.block import BasicBlockModel
 from ghidra.program.model.lang import OperandType, Register
 import ghidra.program.model.symbol.RefType as RefType
@@ -9,6 +10,7 @@ from ghidra.program.model.lang import Register
 functions_count = 0
 addresses_count = 0
 instructions_count = 0
+instruction_def_use = {}
 
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
@@ -115,19 +117,26 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
 
 
 def analyze_instruction(instruction, addr_str):
+    """
     # Define a set of mnemonics (assembly instructions) to be analyzed.
     mnemonicSet = {'ADD', 'AND', 'CALL', 'CMP', 'DEC', 'IMUL', 'INC', 'JA', 'JBE', 'JC', 'JG', 'JL', 'JLE', 'JMP',
                    'JNC', 'JNZ', 'JZ', 'LEA', 'LEAVE', 'MOV', 'MOVSX', 'MOVZX', 'OR', 'POP', 'PUSH', 'RET', 'SAR',
                    'SETNZ', 'SHR', 'STOSD.REP', 'SUB', 'TEST', 'XOR'}
-
+    """
+    global instruction_def_use
     mnemonic = instruction.getMnemonicString()
     defs = []  # List to hold defined variables
     uses = []  # List to hold used variables
 
     operandRegisterHelper(instruction, defs, uses, addr_str)
-    # Ignore 'CALL' instructions
     if mnemonic == 'CALL':
-        pass
+        callTargetRepresentation = instruction.getDefaultOperandRepresentation(0)
+        addressMatch = re.search(r'\[([0-9a-fx]+)\]', callTargetRepresentation, re.IGNORECASE)
+        if addressMatch:
+            callTarget = '[{}]'.format(addressMatch.group(1))
+        else:
+            callTarget = callTargetRepresentation
+        uses.append(callTarget)
     # Analyze instruction based on its type and collect define-use information
     elif mnemonic == 'ADD' or mnemonic == 'SUB':
         if 'eflags' not in defs:
@@ -150,7 +159,15 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'JMP':
         pass
     elif mnemonic == 'LEA':
-        pass
+        destReg = instruction.getRegister(0)
+        if destReg is not None and str(destReg) not in defs:
+            defs.append(str(destReg))
+        sourceOperand = instruction.getDefaultOperandRepresentation(1)
+        memoryRefMatch = re.search(r'\[(.*?)\]', sourceOperand)
+        foundRegisters = set(re.findall(r'\b([a-zA-Z]+)\b', memoryRefMatch.group(1)))
+        for reg in foundRegisters:
+            if reg not in uses:
+                uses.append(reg)
     elif mnemonic == 'LEAVE':
         defs.append('EBP')
         defs.append('ESP')
@@ -184,18 +201,14 @@ def analyze_instruction(instruction, addr_str):
         if 'ESP' not in defs:
             defs.append('ESP')
     elif mnemonic == 'SAR' or mnemonic == 'SAL':
-
         if 'eflags' not in defs:
             defs.append('eflags')
-
     elif mnemonic == 'SETNZ':
         if 'eflags' not in uses:
             uses.append('eflags')
     elif mnemonic == 'SHR' or mnemonic == 'SHL':
-
         if 'eflags' not in defs:
             defs.append('eflags')
-
     elif mnemonic == 'STOSD.REP':
         defs = []
         defs.append('[EDI]')
@@ -211,6 +224,7 @@ def analyze_instruction(instruction, addr_str):
 
     # Generate and return the define-use label without handling 'CALL'
     def_use_label = "D: {} U: {}".format(", ".join(sorted(defs)), ", ".join(sorted(uses)))
+    instruction_def_use[addr_str] = {"def": defs, "use": uses}
     return def_use_label
 
 
@@ -294,6 +308,7 @@ def main():
         with open(file_path, "w") as file:
             file.write(final_result)
         print("submission.dot created.")
+        print(instruction_def_use)
 
     except Exception as e:
         raise Exception("Failed to create submission.dot. Error: {}".format(e))
