@@ -152,7 +152,7 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'ADD' or mnemonic == 'SUB':
         if 'eflags' not in defs:
             defs.append('eflags')
-    elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':
+    elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':  #Done
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'CMP':
@@ -190,7 +190,7 @@ def analyze_instruction(instruction, addr_str):
         pass
     elif mnemonic == 'MOVZX':
         pass
-    elif mnemonic == 'POP':
+    elif mnemonic == 'POP': #Done
         if 'ESP' not in defs:
             defs.append('ESP')
         if '[ESP]' not in uses:
@@ -227,7 +227,7 @@ def analyze_instruction(instruction, addr_str):
         uses.append('EAX')
         uses.append('EDI')
         uses.append('eflags')
-    elif mnemonic == 'TEST':
+    elif mnemonic == 'TEST':  #Done
         if 'eflags' not in defs:
             defs.append('eflags')
     else:
