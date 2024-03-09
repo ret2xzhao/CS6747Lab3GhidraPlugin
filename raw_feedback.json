@@ -1,0 +1,3640 @@
+Total Score: 82.0% 
+
+Edge Statistics:
+  [*] Total correct edges: 1607
+  [-] Count of missing edges: 9
+  [-] Count of extra edges: 0
+  [+] Edge score: 0.29 / 0.3
+
+Instruction Statistics:
+  mov:
+    [*] Total correct def/use attributes: 361
+    [-] Count of incorrect def/use attributes missing or applied: 164
+    [+] Instruction score: 0.02 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 401420: mov dword ptr [ebp-0x30], ebx
+      [-] Answer definitions: { '[ebp-0x00000030]' }
+      [-] Submission definitions: { '[ebp-0x00000030]', 'ebp' }
+      [-] Answer uses: { 'ebp', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+    [*] 401423: mov dword ptr [ebp-0x28], ebx
+      [-] Answer definitions: { '[ebp-0x00000028]' }
+      [-] Submission definitions: { '[ebp-0x00000028]', 'ebp' }
+      [-] Answer uses: { 'ebp', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+    [*] 401426: mov dword ptr ds:0x4047a0, ebx
+      [-] Answer definitions: { '[0x004047a0]' }
+      [-] Submission definitions: {  }
+    [*] 40144a: mov dword ptr [ebp-0x34], esi
+      [-] Answer definitions: { '[ebp-0x00000034]' }
+      [-] Submission definitions: { '[ebp-0x00000034]', 'ebp' }
+      [-] Answer uses: { 'ebp', 'esi' }
+      [-] Submission uses: { 'esi' }
+    [*] 401477: mov dword ptr [ebp-0x14], 0x10
+      [-] Answer definitions: { '[ebp-0x00000014]' }
+      [-] Submission definitions: { '[ebp-0x00000014]', 'ebp' }
+      [-] Answer uses: { 'ebp' }
+      [-] Submission uses: {  }
+
+  add:
+    [*] Total correct def/use attributes: 105
+    [-] Count of incorrect def/use attributes missing or applied: 1
+    [+] Instruction score: 0.04 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 40251a: add dword ptr [ebp-0x10], ecx
+      [-] Answer definitions: { '[ebp-0x00000010]', 'eflags' }
+      [-] Submission definitions: { '[ebp-0x00000010]', 'ebp', 'eflags' }
+
+  sub:
+    [*] Total correct def/use attributes: 43
+    [-] Count of incorrect def/use attributes missing or applied: 2
+    [+] Instruction score: 0.04 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 40246e: sub dword ptr [ebp+0x8], eax
+      [-] Answer definitions: { '[0x00000008+ebp]', 'eflags' }
+      [-] Submission definitions: { '[0x00000008+ebp]', 'ebp', 'eflags' }
+    [*] 40253a: sub dword ptr [ebp+0x8], edi
+      [-] Answer definitions: { '[0x00000008+ebp]', 'eflags' }
+      [-] Submission definitions: { '[0x00000008+ebp]', 'ebp', 'eflags' }
+
+  call:
+    [*] Total correct def/use attributes: 96
+    [-] Count of incorrect def/use attributes missing or applied: 71
+    [+] Instruction score: 0.01 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 401483: call dword ptr ds:0x403024
+      [-] Answer uses: { '[0x00403024]' }
+      [-] Submission uses: {  }
+    [*] 4014c0: call dword ptr ds:0x403048
+      [-] Answer uses: { '[0x00403048]' }
+      [-] Submission uses: {  }
+    [*] 401575: call dword ptr ds:0x40307c
+      [-] Answer uses: { '[0x0040307c]' }
+      [-] Submission uses: {  }
+    [*] 401595: call dword ptr ds:0x403080
+      [-] Answer uses: { '[0x00403080]' }
+      [-] Submission uses: {  }
+    [*] 4015a6: call dword ptr ds:0x4030f8
+      [-] Answer uses: { '[0x004030f8]' }
+      [-] Submission uses: {  }
+
+  cmp:
+    [*] Total correct def/use attributes: 314
+    [-] Count of incorrect def/use attributes missing or applied: 19
+    [+] Instruction score: 0.04 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 4015bb: cmp dword ptr ds:0x4047a0, ebx
+      [-] Answer uses: { '[0x004047a0]', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+    [*] 4015e2: cmp dword ptr ds:0x4047a0, ebx
+      [-] Answer uses: { '[0x004047a0]', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+    [*] 40170c: cmp dword ptr ds:0x4047a0, ebx
+      [-] Answer uses: { '[0x004047a0]', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+    [*] 401802: cmp dword ptr ds:0x4047a0, ebx
+      [-] Answer uses: { '[0x004047a0]', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+    [*] 4018ba: cmp dword ptr ds:0x4047a0, ebx
+      [-] Answer uses: { '[0x004047a0]', 'ebx' }
+      [-] Submission uses: { 'ebx' }
+
+  test:
+    [*] Total correct def/use attributes: 55
+    [-] Count of incorrect def/use attributes missing or applied: 0
+    [+] Instruction score: 0.05 / 0.05
+
+  xor:
+    [*] Total correct def/use attributes: 48
+    [-] Count of incorrect def/use attributes missing or applied: 0
+    [+] Instruction score: 0.05 / 0.05
+
+  push:
+    [*] Total correct def/use attributes: 1891
+    [-] Count of incorrect def/use attributes missing or applied: 22
+    [+] Instruction score: 0.04 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 4016eb: push dword ptr ds:0x404780
+      [-] Answer uses: { '[0x00404780]', 'esp' }
+      [-] Submission uses: { 'esp' }
+    [*] 4018c3: push dword ptr ds:0x404770
+      [-] Answer uses: { '[0x00404770]', 'esp' }
+      [-] Submission uses: { 'esp' }
+    [*] 4018d1: push dword ptr ds:0x404770
+      [-] Answer uses: { '[0x00404770]', 'esp' }
+      [-] Submission uses: { 'esp' }
+    [*] 401916: push dword ptr ds:0x404770
+      [-] Answer uses: { '[0x00404770]', 'esp' }
+      [-] Submission uses: { 'esp' }
+    [*] 401924: push dword ptr ds:0x404774
+      [-] Answer uses: { '[0x00404774]', 'esp' }
+      [-] Submission uses: { 'esp' }
+
+  pop:
+    [*] Total correct def/use attributes: 444
+    [-] Count of incorrect def/use attributes missing or applied: 0
+    [+] Instruction score: 0.05 / 0.05
+
+  lea:
+    [*] Total correct def/use attributes: 221
+    [-] Count of incorrect def/use attributes missing or applied: 110
+    [+] Instruction score: 0.02 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 401472: lea ecx, [ebp-0x14]
+      [-] Answer uses: { 'ebp' }
+      [-] Submission uses: { '[ebp-0x00000014]', 'ebp' }
+    [*] 40148e: lea ecx, [ebp-0x5c]
+      [-] Answer uses: { 'ebp' }
+      [-] Submission uses: { '[ebp-0x0000005c]', 'ebp' }
+    [*] 4014a6: lea ecx, [ebp-0x5c]
+      [-] Answer uses: { 'ebp' }
+      [-] Submission uses: { '[ebp-0x0000005c]', 'ebp' }
+    [*] 4014b2: lea ecx, [ebp-0x5c]
+      [-] Answer uses: { 'ebp' }
+      [-] Submission uses: { '[ebp-0x0000005c]', 'ebp' }
+    [*] 40151a: lea eax, [ebp-0x68]
+      [-] Answer uses: { 'ebp' }
+      [-] Submission uses: { '[ebp-0x00000068]', 'ebp' }
+
+  all_jmps:
+    [*] Total correct def/use attributes: 136
+    [-] Count of incorrect def/use attributes missing or applied: 2
+    [+] Instruction score: 0.04 / 0.05
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 401724: jmp dword ptr [edi*4+0x401973]
+      [-] Answer uses: { '[0x00000004*edi+0x00401973]', 'edi' }
+      [-] Submission uses: {  }
+
+  other:
+    [*] Total correct def/use attributes: 136
+    [-] Count of incorrect def/use attributes missing or applied: 11
+    [+] Instruction score: 0.13 / 0.15
+  [!] Examples of incorrect nodes (Output Normalized):
+    [*] 401972: ret
+      [-] Answer uses: { 'esp' }
+      [-] Submission uses: { '[esp]', 'esp' }
+    [*] 401e11: ret
+      [-] Answer uses: { 'esp' }
+      [-] Submission uses: { '[esp]', 'esp' }
+    [*] 4020fc: inc dword ptr [ebp-0xc]
+      [-] Answer definitions: { '[ebp-0x0000000c]', 'eflags' }
+      [-] Submission definitions: { '[ebp-0x0000000c]', 'ebp', 'eflags' }
+    [*] 402101: shr dword ptr [ebp-0x8], 1
+      [-] Answer definitions: { '[ebp-0x00000008]', 'eflags' }
+      [-] Submission definitions: { '[ebp-0x00000008]', 'ebp', 'eflags' }
+    [*] 402104: inc byte ptr [ebp-0x1]
+      [-] Answer definitions: { '[ebp-0x00000001]', 'eflags' }
+      [-] Submission definitions: { '[ebp-0x00000001]', 'ebp', 'eflags' }
+
+Raw Feedback
+{
+    "nodes": {
+        "401406": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov eax, 0x402c50",
+            "incorrect": false
+        },
+        "40140b": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a90",
+            "incorrect": false
+        },
+        "401410": {
+            "function_origin": "401406",
+            "instruction": "sub",
+            "full_instruction": "sub esp, 0x274",
+            "incorrect": false
+        },
+        "401416": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "401417": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "401418": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push edi",
+            "incorrect": false
+        },
+        "401419": {
+            "function_origin": "401406",
+            "instruction": "xor",
+            "full_instruction": "xor ebx, ebx",
+            "incorrect": false
+        },
+        "40141b": {
+            "function_origin": "401406",
+            "instruction": "xor",
+            "full_instruction": "xor edi, edi",
+            "incorrect": false
+        },
+        "40141d": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr [ebp+0x8], ebx",
+            "incorrect": false
+        },
+        "401420": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x30], ebx",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000030]"
+            ],
+            "submission_definitions": [
+                "+[+ebp-0x00000030]",
+                "+ebp"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000030]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x30]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "401423": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x28], ebx",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000028]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000028]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000028]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x28]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "401426": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr ds:0x4047a0, ebx",
+            "incorrect": true,
+            "missing_defs": [
+                "+[+0x004047a0]"
+            ],
+            "extra_defs": [],
+            "answer_definitions": [
+                "+[+0x004047a0]"
+            ],
+            "submission_definitions": [],
+            "orig_answer_definitions": [
+                "[0x004047a0]"
+            ],
+            "orig_submission_definitions": []
+        },
+        "40142c": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x401962",
+            "incorrect": false
+        },
+        "401432": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr [ebp+0xc], ebx",
+            "incorrect": false
+        },
+        "401435": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x401962",
+            "incorrect": false
+        },
+        "40143b": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x400",
+            "incorrect": false
+        },
+        "401440": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a6e",
+            "incorrect": false
+        },
+        "401445": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov esi, eax",
+            "incorrect": false
+        },
+        "401447": {
+            "function_origin": "401406",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "401448": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp esi, ebx",
+            "incorrect": false
+        },
+        "40144a": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x34], esi",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000034]"
+            ],
+            "submission_definitions": [
+                "+[+ebp-0x00000034]",
+                "+ebp"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000034]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x34]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+esi"
+            ],
+            "submission_uses": [
+                "+esi"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "esi"
+            ],
+            "orig_submission_uses": [
+                "esi"
+            ]
+        },
+        "40144d": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x401962",
+            "incorrect": false
+        },
+        "401453": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x40410c",
+            "incorrect": false
+        },
+        "401458": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "401459": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a68",
+            "incorrect": false
+        },
+        "40145e": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x404100",
+            "incorrect": false
+        },
+        "401463": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "401464": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "401469": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "40146a": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a62",
+            "incorrect": false
+        },
+        "40146f": {
+            "function_origin": "401406",
+            "instruction": "add",
+            "full_instruction": "add esp, 0x14",
+            "incorrect": false
+        },
+        "401472": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea ecx, [ebp-0x14]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000014]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000014]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x14]",
+                "ebp"
+            ]
+        },
+        "401475": {
+            "function_origin": "401406",
+            "instruction": "add",
+            "full_instruction": "add eax, esi",
+            "incorrect": false
+        },
+        "401477": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x14], 0x10",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000014]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000014]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000014]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x14]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": []
+        },
+        "40147e": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push ecx",
+            "incorrect": false
+        },
+        "40147f": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401480": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x1c], eax",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x0000001c]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x0000001c]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x0000001c]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x1c]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+eax"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "eax"
+            ]
+        },
+        "401483": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403024",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403024]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403024]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403024]"
+            ],
+            "orig_submission_uses": []
+        },
+        "401489": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x36ee80",
+            "incorrect": false
+        },
+        "40148e": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea ecx, [ebp-0x5c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000005c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x0000005c]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x5c]",
+                "ebp"
+            ]
+        },
+        "401491": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x14]",
+            "incorrect": false
+        },
+        "401494": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "401495": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x10]",
+            "incorrect": false
+        },
+        "401498": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0xc]",
+            "incorrect": false
+        },
+        "40149b": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x8]",
+            "incorrect": false
+        },
+        "40149e": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x40101c",
+            "incorrect": false
+        },
+        "4014a3": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x4], ebx",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000004]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000004]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000004]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x4]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "4014a6": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea ecx, [ebp-0x5c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000005c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x0000005c]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x5c]",
+                "ebp"
+            ]
+        },
+        "4014a9": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x4010c0",
+            "incorrect": false
+        },
+        "4014ae": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp eax, ebx",
+            "incorrect": false
+        },
+        "4014b0": {
+            "function_origin": "401406",
+            "instruction": "jne",
+            "full_instruction": "jne 0x4014cb",
+            "incorrect": false
+        },
+        "4014b2": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea ecx, [ebp-0x5c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000005c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x0000005c]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x5c]",
+                "ebp"
+            ]
+        },
+        "4014b5": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x4013cc",
+            "incorrect": false
+        },
+        "4014ba": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0xea60",
+            "incorrect": false
+        },
+        "4014bf": {
+            "function_origin": "401406",
+            "instruction": "inc",
+            "full_instruction": "inc edi",
+            "incorrect": false
+        },
+        "4014c0": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403048",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403048]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403048]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403048]"
+            ],
+            "orig_submission_uses": []
+        },
+        "4014c6": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp edi, 0x5",
+            "incorrect": false
+        },
+        "4014c9": {
+            "function_origin": "401406",
+            "instruction": "jb",
+            "full_instruction": "jb 0x4014a6",
+            "incorrect": false
+        },
+        "4014cb": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp edi, 0x5",
+            "incorrect": false
+        },
+        "4014ce": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4018ba",
+            "incorrect": false
+        },
+        "4014d4": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x10000",
+            "incorrect": false
+        },
+        "4014d9": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a6e",
+            "incorrect": false
+        },
+        "4014de": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp+0xc], eax",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+0x0000000c+ebp]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+0x0000000c+ebp]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp+0x0000000c]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + 0xc]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+eax"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "eax"
+            ]
+        },
+        "4014e1": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [esp], 0x1000",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+esp"
+            ],
+            "answer_definitions": [
+                "+[+esp]"
+            ],
+            "submission_definitions": [
+                "+esp",
+                "+[+esp]"
+            ],
+            "orig_answer_definitions": [
+                "[esp]"
+            ],
+            "orig_submission_definitions": [
+                "[esp]",
+                "esp"
+            ],
+            "missing_uses": [
+                "+esp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+esp"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "esp"
+            ],
+            "orig_submission_uses": []
+        },
+        "4014e8": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a6e",
+            "incorrect": false
+        },
+        "4014ed": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr [ebp+0xc], ebx",
+            "incorrect": false
+        },
+        "4014f0": {
+            "function_origin": "401406",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4014f1": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp+0x14], eax",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+0x00000014+ebp]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+0x00000014+ebp]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp+0x00000014]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + 0x14]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+eax"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "eax"
+            ]
+        },
+        "4014f4": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4018ba",
+            "incorrect": false
+        },
+        "4014fa": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp eax, ebx",
+            "incorrect": false
+        },
+        "4014fc": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4018ba",
+            "incorrect": false
+        },
+        "401502": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x200",
+            "incorrect": false
+        },
+        "401507": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a6e",
+            "incorrect": false
+        },
+        "40150c": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp eax, ebx",
+            "incorrect": false
+        },
+        "40150e": {
+            "function_origin": "401406",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "40150f": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp+0x10], eax",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+0x00000010+ebp]"
+            ],
+            "submission_definitions": [
+                "+[+0x00000010+ebp]",
+                "+ebp"
+            ],
+            "orig_answer_definitions": [
+                "[ebp+0x00000010]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + 0x10]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+eax"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "eax"
+            ]
+        },
+        "401512": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4018ba",
+            "incorrect": false
+        },
+        "401518": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0xc",
+            "incorrect": false
+        },
+        "40151a": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x68]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000068]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000068]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x68]",
+                "ebp"
+            ]
+        },
+        "40151d": {
+            "function_origin": "401406",
+            "instruction": "pop",
+            "full_instruction": "pop edi",
+            "incorrect": false
+        },
+        "40151e": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov esi, dword ptr ds:0x403078",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403078]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403078]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403078]"
+            ],
+            "orig_submission_uses": []
+        },
+        "401524": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "401525": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401526": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x24]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000024]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+[+ebp-0x00000024]",
+                "+ebp"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x24]",
+                "ebp"
+            ]
+        },
+        "401529": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x68], edi",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000068]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000068]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000068]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x68]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+edi",
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+edi"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "edi"
+            ],
+            "orig_submission_uses": [
+                "edi"
+            ]
+        },
+        "40152c": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "40152d": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x2c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000002c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x0000002c]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x2c]",
+                "ebp"
+            ]
+        },
+        "401530": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401531": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x60], 0x1",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000060]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000060]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000060]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x60]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": []
+        },
+        "401538": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x64], ebx",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000064]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000064]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000064]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x64]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "40153b": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call esi",
+            "incorrect": false
+        },
+        "40153d": {
+            "function_origin": "401406",
+            "instruction": "test",
+            "full_instruction": "test eax, eax",
+            "incorrect": false
+        },
+        "40153f": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4018b7",
+            "incorrect": false
+        },
+        "401545": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x74]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000074]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000074]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x74]",
+                "ebp"
+            ]
+        },
+        "401548": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "401549": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "40154a": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x18]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000018]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000018]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x18]",
+                "ebp"
+            ]
+        },
+        "40154d": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "40154e": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x20]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000020]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000020]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x20]",
+                "ebp"
+            ]
+        },
+        "401551": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401552": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x74], edi",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000074]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000074]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000074]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x74]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+edi",
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+edi"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "edi"
+            ],
+            "orig_submission_uses": [
+                "edi"
+            ]
+        },
+        "401555": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x6c], 0x1",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x0000006c]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x0000006c]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x0000006c]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x6c]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": []
+        },
+        "40155c": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x70], ebx",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000070]"
+            ],
+            "submission_definitions": [
+                "+[+ebp-0x00000070]",
+                "+ebp"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000070]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x70]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "40155f": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call esi",
+            "incorrect": false
+        },
+        "401561": {
+            "function_origin": "401406",
+            "instruction": "test",
+            "full_instruction": "test eax, eax",
+            "incorrect": false
+        },
+        "401563": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4018b7",
+            "incorrect": false
+        },
+        "401569": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x17c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000017c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+[+ebp-0x0000017c]",
+                "+ebp"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + 0xfffffe84]",
+                "ebp"
+            ]
+        },
+        "40156f": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x104",
+            "incorrect": false
+        },
+        "401574": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401575": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x40307c",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x0040307c]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x0040307c]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x0040307c]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40157b": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x17c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000017c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+[+ebp-0x0000017c]",
+                "+ebp"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + 0xfffffe84]",
+                "ebp"
+            ]
+        },
+        "401581": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x4040f8",
+            "incorrect": false
+        },
+        "401586": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401587": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "40158c": {
+            "function_origin": "401406",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "40158d": {
+            "function_origin": "401406",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x17c]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x0000017c]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+[+ebp-0x0000017c]",
+                "+ebp"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + 0xfffffe84]",
+                "ebp"
+            ]
+        },
+        "401593": {
+            "function_origin": "401406",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "401594": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "401595": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403080",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403080]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403080]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403080]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40159b": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp-0x1c]",
+            "incorrect": false
+        },
+        "40159e": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push 0x4040e4",
+            "incorrect": false
+        },
+        "4015a3": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0xc]",
+            "incorrect": false
+        },
+        "4015a6": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x4030f8",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x004030f8]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x004030f8]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x004030f8]"
+            ],
+            "orig_submission_uses": []
+        },
+        "4015ac": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0xc]",
+            "incorrect": false
+        },
+        "4015af": {
+            "function_origin": "401406",
+            "instruction": "call",
+            "full_instruction": "call 0x402a62",
+            "incorrect": false
+        },
+        "4015b4": {
+            "function_origin": "401406",
+            "instruction": "add",
+            "full_instruction": "add esp, 0x10",
+            "incorrect": false
+        },
+        "4015b7": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov esi, eax",
+            "incorrect": false
+        },
+        "4015b9": {
+            "function_origin": "401406",
+            "instruction": "xor",
+            "full_instruction": "xor edi, edi",
+            "incorrect": false
+        },
+        "4015bb": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr ds:0x4047a0, ebx",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x004047a0]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x004047a0]",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "[0x004047a0]",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "4015c1": {
+            "function_origin": "401406",
+            "instruction": "je",
+            "full_instruction": "je 0x4015dd",
+            "incorrect": false
+        },
+        "4015c3": {
+            "function_origin": "401406",
+            "instruction": "cmp",
+            "full_instruction": "cmp esi, ebx",
+            "incorrect": false
+        },
+        "4015c5": {
+            "function_origin": "401406",
+            "instruction": "jne",
+            "full_instruction": "jne 0x4015dd",
+            "incorrect": false
+        },
+        "4015c7": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp-0x30]",
+            "incorrect": false
+        },
+        "4015ca": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov eax, dword ptr [ebp+0xc]",
+            "incorrect": false
+        },
+        "4015cd": {
+            "function_origin": "401406",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "4015ce": {
+            "function_origin": "401406",
+            "instruction": "mov",
+            "full_instruction": "mov byte ptr [eax], bl",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+eax"
+            ],
+            "answer_definitions": [
+                "+[+eax]"
+            ],
+            "submission_definitions": [
+                "+[+eax]",
+                "+eax"
+            ],
+            "orig_answer_definitions": [
+                "[eax]"
+            ],
+            "orig_submission_definitions": [
+                "[eax]",
+                "eax"
+            ],
+            "missing_uses": [
+                "+eax"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebx",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebx"
+            ],
+            "orig_subm[...(truncated)...]ion_definitions": [
+                "[ebp + -0x24]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+esi"
+            ],
+            "submission_uses": [
+                "+esi"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "esi"
+            ],
+            "orig_submission_uses": [
+                "si"
+            ]
+        },
+        "402696": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x1",
+            "incorrect": false
+        },
+        "402698": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop eax",
+            "incorrect": false
+        },
+        "402699": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push ecx",
+            "incorrect": false
+        },
+        "40269a": {
+            "function_origin": "402645",
+            "instruction": "lea",
+            "full_instruction": "lea ecx, [ebp-0x54]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000054]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000054]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x54]",
+                "ebp"
+            ]
+        },
+        "40269d": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push ecx",
+            "incorrect": false
+        },
+        "40269e": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "40269f": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026a0": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026a1": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "4026a2": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026a3": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026a4": {
+            "function_origin": "402645",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x28], eax",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000028]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000028]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000028]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x28]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+eax"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "eax"
+            ]
+        },
+        "4026a7": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr ds:0x404788",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00404788]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00404788]",
+                "+esp"
+            ],
+            "submission_uses": [
+                "+esp"
+            ],
+            "orig_answer_uses": [
+                "[0x00404788]",
+                "esp"
+            ],
+            "orig_submission_uses": [
+                "esp"
+            ]
+        },
+        "4026ad": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026ae": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403038",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403038]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403038]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403038]"
+            ],
+            "orig_submission_uses": []
+        },
+        "4026b4": {
+            "function_origin": "402645",
+            "instruction": "test",
+            "full_instruction": "test eax, eax",
+            "incorrect": false
+        },
+        "4026b6": {
+            "function_origin": "402645",
+            "instruction": "je",
+            "full_instruction": "je 0x4026bf",
+            "incorrect": false
+        },
+        "4026b8": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x4045e4",
+            "incorrect": false
+        },
+        "4026bd": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x4026c4",
+            "incorrect": false
+        },
+        "4026bf": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x4045c8",
+            "incorrect": false
+        },
+        "4026c4": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x8]",
+            "incorrect": false
+        },
+        "4026c7": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "4026cc": {
+            "function_origin": "402645",
+            "instruction": "mov",
+            "full_instruction": "mov esi, dword ptr ds:0x40308c",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x0040308c]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x0040308c]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x0040308c]"
+            ],
+            "orig_submission_uses": []
+        },
+        "4026d2": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4026d3": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4026d4": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp-0x10]",
+            "incorrect": false
+        },
+        "4026d7": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call esi",
+            "incorrect": false
+        },
+        "4026d9": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp-0xc]",
+            "incorrect": false
+        },
+        "4026dc": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x4027a1",
+            "incorrect": false
+        },
+        "4026e1": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr ds:0x404784",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00404784]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+esp",
+                "+[+0x00404784]"
+            ],
+            "submission_uses": [
+                "+esp"
+            ],
+            "orig_answer_uses": [
+                "[0x00404784]",
+                "esp"
+            ],
+            "orig_submission_uses": [
+                "esp"
+            ]
+        },
+        "4026e7": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x404338",
+            "incorrect": false
+        },
+        "4026ec": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call edi",
+            "incorrect": false
+        },
+        "4026ee": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4026ef": {
+            "function_origin": "402645",
+            "instruction": "test",
+            "full_instruction": "test eax, eax",
+            "incorrect": false
+        },
+        "4026f1": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4026f2": {
+            "function_origin": "402645",
+            "instruction": "jne",
+            "full_instruction": "jne 0x4027a3",
+            "incorrect": false
+        },
+        "4026f8": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x4",
+            "incorrect": false
+        },
+        "4026fa": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026fb": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "4026fc": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x40300c",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x0040300c]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x0040300c]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x0040300c]"
+            ],
+            "orig_submission_uses": []
+        },
+        "402702": {
+            "function_origin": "402645",
+            "instruction": "mov",
+            "full_instruction": "mov ebx, eax",
+            "incorrect": false
+        },
+        "402704": {
+            "function_origin": "402645",
+            "instruction": "cmp",
+            "full_instruction": "cmp ebx, esi",
+            "incorrect": false
+        },
+        "402706": {
+            "function_origin": "402645",
+            "instruction": "jne",
+            "full_instruction": "jne 0x40271c",
+            "incorrect": false
+        },
+        "402708": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x404448",
+            "incorrect": false
+        },
+        "40270d": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x8]",
+            "incorrect": false
+        },
+        "402710": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "402715": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "402716": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "402717": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x4027a3",
+            "incorrect": false
+        },
+        "40271c": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0xf003f",
+            "incorrect": false
+        },
+        "402721": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr ds:0x404788",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00404788]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00404788]",
+                "+esp"
+            ],
+            "submission_uses": [
+                "+esp"
+            ],
+            "orig_answer_uses": [
+                "[0x00404788]",
+                "esp"
+            ],
+            "orig_submission_uses": [
+                "esp"
+            ]
+        },
+        "402727": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "402728": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403014",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403014]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403014]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403014]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40272e": {
+            "function_origin": "402645",
+            "instruction": "mov",
+            "full_instruction": "mov edi, eax",
+            "incorrect": false
+        },
+        "402730": {
+            "function_origin": "402645",
+            "instruction": "cmp",
+            "full_instruction": "cmp edi, esi",
+            "incorrect": false
+        },
+        "402732": {
+            "function_origin": "402645",
+            "instruction": "jne",
+            "full_instruction": "jne 0x402760",
+            "incorrect": false
+        },
+        "402734": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403098",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403098]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403098]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403098]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40273a": {
+            "function_origin": "402645",
+            "instruction": "cmp",
+            "full_instruction": "cmp eax, 0x424",
+            "incorrect": false
+        },
+        "40273f": {
+            "function_origin": "402645",
+            "instruction": "jne",
+            "full_instruction": "jne 0x402748",
+            "incorrect": false
+        },
+        "402741": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x40442c",
+            "incorrect": false
+        },
+        "402746": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x40274d",
+            "incorrect": false
+        },
+        "402748": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x4045ac",
+            "incorrect": false
+        },
+        "40274d": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x8]",
+            "incorrect": false
+        },
+        "402750": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "402755": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "402756": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "402757": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "402758": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403004",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403004]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403004]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403004]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40275e": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x4027a3",
+            "incorrect": false
+        },
+        "402760": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "402761": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "402762": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push edi",
+            "incorrect": false
+        },
+        "402763": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403018",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403018]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403018]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403018]"
+            ],
+            "orig_submission_uses": []
+        },
+        "402769": {
+            "function_origin": "402645",
+            "instruction": "test",
+            "full_instruction": "test eax, eax",
+            "incorrect": false
+        },
+        "40276b": {
+            "function_origin": "402645",
+            "instruction": "je",
+            "full_instruction": "je 0x402774",
+            "incorrect": false
+        },
+        "40276d": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x404594",
+            "incorrect": false
+        },
+        "402772": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x40278d",
+            "incorrect": false
+        },
+        "402774": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403098",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403098]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403098]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403098]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40277a": {
+            "function_origin": "402645",
+            "instruction": "cmp",
+            "full_instruction": "cmp eax, 0x420",
+            "incorrect": false
+        },
+        "40277f": {
+            "function_origin": "402645",
+            "instruction": "jne",
+            "full_instruction": "jne 0x402788",
+            "incorrect": false
+        },
+        "402781": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x404574",
+            "incorrect": false
+        },
+        "402786": {
+            "function_origin": "402645",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x40278d",
+            "incorrect": false
+        },
+        "402788": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push 0x4045ac",
+            "incorrect": false
+        },
+        "40278d": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push dword ptr [ebp+0x8]",
+            "incorrect": false
+        },
+        "402790": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "402795": {
+            "function_origin": "402645",
+            "instruction": "mov",
+            "full_instruction": "mov esi, dword ptr ds:0x403004",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403004]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403004]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403004]"
+            ],
+            "orig_submission_uses": []
+        },
+        "40279b": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "40279c": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "40279d": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push edi",
+            "incorrect": false
+        },
+        "40279e": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call esi",
+            "incorrect": false
+        },
+        "4027a0": {
+            "function_origin": "402645",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "4027a1": {
+            "function_origin": "402645",
+            "instruction": "call",
+            "full_instruction": "call esi",
+            "incorrect": false
+        },
+        "4027a3": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop edi",
+            "incorrect": false
+        },
+        "4027a4": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop esi",
+            "incorrect": false
+        },
+        "4027a5": {
+            "function_origin": "402645",
+            "instruction": "pop",
+            "full_instruction": "pop ebx",
+            "incorrect": false
+        },
+        "4027a6": {
+            "function_origin": "402645",
+            "instruction": "leave\n",
+            "full_instruction": "leave",
+            "incorrect": false
+        },
+        "4027a7": {
+            "function_origin": "402645",
+            "instruction": "ret\n",
+            "full_instruction": "ret",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+esp]"
+            ],
+            "answer_uses": [
+                "+esp"
+            ],
+            "submission_uses": [
+                "+esp",
+                "+[+esp]"
+            ],
+            "orig_answer_uses": [
+                "esp"
+            ],
+            "orig_submission_uses": [
+                "[esp]",
+                "esp"
+            ]
+        },
+        "40297d": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push ebp",
+            "incorrect": false
+        },
+        "40297e": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov ebp, esp",
+            "incorrect": false
+        },
+        "402980": {
+            "function_origin": "40297d",
+            "instruction": "sub",
+            "full_instruction": "sub esp, 0x28",
+            "incorrect": false
+        },
+        "402983": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "402984": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "402985": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov esi, 0x4046c8",
+            "incorrect": false
+        },
+        "40298a": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push edi",
+            "incorrect": false
+        },
+        "40298b": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push esi",
+            "incorrect": false
+        },
+        "40298c": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call 0x402a62",
+            "incorrect": false
+        },
+        "402991": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x4], eax",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000004]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000004]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000004]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x4]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+eax"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "eax"
+            ]
+        },
+        "402994": {
+            "function_origin": "40297d",
+            "instruction": "inc",
+            "full_instruction": "inc eax",
+            "incorrect": false
+        },
+        "402995": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "402996": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call 0x402a6e",
+            "incorrect": false
+        },
+        "40299b": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov edi, eax",
+            "incorrect": false
+        },
+        "40299d": {
+            "function_origin": "40297d",
+            "instruction": "xor",
+            "full_instruction": "xor ebx, ebx",
+            "incorrect": false
+        },
+        "40299f": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4029a0": {
+            "function_origin": "40297d",
+            "instruction": "cmp",
+            "full_instruction": "cmp edi, ebx",
+            "incorrect": false
+        },
+        "4029a2": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "4029a3": {
+            "function_origin": "40297d",
+            "instruction": "jne",
+            "full_instruction": "jne 0x4029ad",
+            "incorrect": false
+        },
+        "4029a5": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push 0x1",
+            "incorrect": false
+        },
+        "4029a7": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop eax",
+            "incorrect": false
+        },
+        "4029a8": {
+            "function_origin": "40297d",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x402a42",
+            "incorrect": false
+        },
+        "4029ad": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov eax, dword ptr [ebp-0x4]",
+            "incorrect": false
+        },
+        "4029b0": {
+            "function_origin": "40297d",
+            "instruction": "inc",
+            "full_instruction": "inc eax",
+            "incorrect": false
+        },
+        "4029b1": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "4029b2": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push ebx",
+            "incorrect": false
+        },
+        "4029b3": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push edi",
+            "incorrect": false
+        },
+        "4029b4": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call 0x402a74",
+            "incorrect": false
+        },
+        "4029b9": {
+            "function_origin": "40297d",
+            "instruction": "add",
+            "full_instruction": "add esp, 0xc",
+            "incorrect": false
+        },
+        "4029bc": {
+            "function_origin": "40297d",
+            "instruction": "xor",
+            "full_instruction": "xor ecx, ecx",
+            "incorrect": false
+        },
+        "4029be": {
+            "function_origin": "40297d",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr [ebp-0x4], ebx",
+            "incorrect": false
+        },
+        "4029c1": {
+            "function_origin": "40297d",
+            "instruction": "jbe",
+            "full_instruction": "jbe 0x4029d8",
+            "incorrect": false
+        },
+        "4029c3": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov eax, edi",
+            "incorrect": false
+        },
+        "4029c5": {
+            "function_origin": "40297d",
+            "instruction": "sub",
+            "full_instruction": "sub esi, edi",
+            "incorrect": false
+        },
+        "4029c7": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov dl, byte ptr [esi+eax*1]",
+            "incorrect": false
+        },
+        "4029ca": {
+            "function_origin": "40297d",
+            "instruction": "sar",
+            "full_instruction": "sar dl, 1",
+            "incorrect": false
+        },
+        "4029cc": {
+            "function_origin": "40297d",
+            "instruction": "and",
+            "full_instruction": "and dl, 0x7f",
+            "incorrect": false
+        },
+        "4029cf": {
+            "function_origin": "40297d",
+            "instruction": "inc",
+            "full_instruction": "inc ecx",
+            "incorrect": false
+        },
+        "4029d0": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov byte ptr [eax], dl",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+eax"
+            ],
+            "answer_definitions": [
+                "+[+eax]"
+            ],
+            "submission_definitions": [
+                "+[+eax]",
+                "+eax"
+            ],
+            "orig_answer_definitions": [
+                "[eax]"
+            ],
+            "orig_submission_definitions": [
+                "[eax]",
+                "eax"
+            ],
+            "missing_uses": [
+                "+eax"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+edx",
+                "+eax"
+            ],
+            "submission_uses": [
+                "+edx"
+            ],
+            "orig_answer_uses": [
+                "eax",
+                "edx"
+            ],
+            "orig_submission_uses": [
+                "dl"
+            ]
+        },
+        "4029d2": {
+            "function_origin": "40297d",
+            "instruction": "inc",
+            "full_instruction": "inc eax",
+            "incorrect": false
+        },
+        "4029d3": {
+            "function_origin": "40297d",
+            "instruction": "cmp",
+            "full_instruction": "cmp ecx, dword ptr [ebp-0x4]",
+            "incorrect": false
+        },
+        "4029d6": {
+            "function_origin": "40297d",
+            "instruction": "jb",
+            "full_instruction": "jb 0x4029c7",
+            "incorrect": false
+        },
+        "4029d8": {
+            "function_origin": "40297d",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x4]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000004]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000004]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x4]",
+                "ebp"
+            ]
+        },
+        "4029db": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov dword ptr [ebp-0x4], 0x23",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000004]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000004]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000004]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x4]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": []
+        },
+        "4029e2": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "4029e3": {
+            "function_origin": "40297d",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x27]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000027]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000027]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x27]",
+                "ebp"
+            ]
+        },
+        "4029e6": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "4029e7": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov byte ptr [ebp-0x28], 0x2f",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000028]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000028]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000028]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x28]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": []
+        },
+        "4029eb": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403024",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403024]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403024]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403024]"
+            ],
+            "orig_submission_uses": []
+        },
+        "4029f1": {
+            "function_origin": "40297d",
+            "instruction": "test",
+            "full_instruction": "test eax, eax",
+            "incorrect": false
+        },
+        "4029f3": {
+            "function_origin": "40297d",
+            "instruction": "jne",
+            "full_instruction": "jne 0x4029f8",
+            "incorrect": false
+        },
+        "4029f5": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov byte ptr [ebp-0x28], bl",
+            "incorrect": true,
+            "missing_defs": [],
+            "extra_defs": [
+                "+ebp"
+            ],
+            "answer_definitions": [
+                "+[+ebp-0x00000028]"
+            ],
+            "submission_definitions": [
+                "+ebp",
+                "+[+ebp-0x00000028]"
+            ],
+            "orig_answer_definitions": [
+                "[ebp-0x00000028]"
+            ],
+            "orig_submission_definitions": [
+                "[ebp + -0x28]",
+                "ebp"
+            ],
+            "missing_uses": [
+                "+ebp"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+ebp",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "ebp",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "bl"
+            ]
+        },
+        "4029f8": {
+            "function_origin": "40297d",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x28]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000028]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000028]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x28]",
+                "ebp"
+            ]
+        },
+        "4029fb": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push 0x4046c4",
+            "incorrect": false
+        },
+        "402a00": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "402a01": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call 0x402a7a",
+            "incorrect": false
+        },
+        "402a06": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "402a07": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop ecx",
+            "incorrect": false
+        },
+        "402a08": {
+            "function_origin": "40297d",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr ds:0x4047a4, ebx",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x004047a4]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x004047a4]",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "[0x004047a4]",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "402a0e": {
+            "function_origin": "40297d",
+            "instruction": "jne",
+            "full_instruction": "jne 0x402a40",
+            "incorrect": false
+        },
+        "402a10": {
+            "function_origin": "40297d",
+            "instruction": "lea",
+            "full_instruction": "lea eax, [ebp-0x28]",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+ebp-0x00000028]"
+            ],
+            "answer_uses": [
+                "+ebp"
+            ],
+            "submission_uses": [
+                "+ebp",
+                "+[+ebp-0x00000028]"
+            ],
+            "orig_answer_uses": [
+                "ebp"
+            ],
+            "orig_submission_uses": [
+                "[ebp + -0x28]",
+                "ebp"
+            ]
+        },
+        "402a13": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push 0x1",
+            "incorrect": false
+        },
+        "402a15": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "402a16": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push 0x4046b8",
+            "incorrect": false
+        },
+        "402a1b": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push edi",
+            "incorrect": false
+        },
+        "402a1c": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call 0x401406",
+            "incorrect": false
+        },
+        "402a21": {
+            "function_origin": "40297d",
+            "instruction": "add",
+            "full_instruction": "add esp, 0x10",
+            "incorrect": false
+        },
+        "402a24": {
+            "function_origin": "40297d",
+            "instruction": "cmp",
+            "full_instruction": "cmp dword ptr ds:0x4047a4, ebx",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x004047a4]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x004047a4]",
+                "+ebx"
+            ],
+            "submission_uses": [
+                "+ebx"
+            ],
+            "orig_answer_uses": [
+                "[0x004047a4]",
+                "ebx"
+            ],
+            "orig_submission_uses": [
+                "ebx"
+            ]
+        },
+        "402a2a": {
+            "function_origin": "40297d",
+            "instruction": "jne",
+            "full_instruction": "jne 0x402a40",
+            "incorrect": false
+        },
+        "402a2c": {
+            "function_origin": "40297d",
+            "instruction": "mov",
+            "full_instruction": "mov eax, ds:0x4046b4",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x004046b4]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x004046b4]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x004046b4]"
+            ],
+            "orig_submission_uses": []
+        },
+        "402a31": {
+            "function_origin": "40297d",
+            "instruction": "imul",
+            "full_instruction": "imul eax, eax, 0xea60",
+            "incorrect": false
+        },
+        "402a37": {
+            "function_origin": "40297d",
+            "instruction": "push",
+            "full_instruction": "push eax",
+            "incorrect": false
+        },
+        "402a38": {
+            "function_origin": "40297d",
+            "instruction": "call",
+            "full_instruction": "call dword ptr ds:0x403048",
+            "incorrect": true,
+            "missing_uses": [
+                "+[+0x00403048]"
+            ],
+            "extra_uses": [],
+            "answer_uses": [
+                "+[+0x00403048]"
+            ],
+            "submission_uses": [],
+            "orig_answer_uses": [
+                "[0x00403048]"
+            ],
+            "orig_submission_uses": []
+        },
+        "402a3e": {
+            "function_origin": "40297d",
+            "instruction": "jmp",
+            "full_instruction": "jmp 0x402a08",
+            "incorrect": false
+        },
+        "402a40": {
+            "function_origin": "40297d",
+            "instruction": "xor",
+            "full_instruction": "xor eax, eax",
+            "incorrect": false
+        },
+        "402a42": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop edi",
+            "incorrect": false
+        },
+        "402a43": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop esi",
+            "incorrect": false
+        },
+        "402a44": {
+            "function_origin": "40297d",
+            "instruction": "pop",
+            "full_instruction": "pop ebx",
+            "incorrect": false
+        },
+        "402a45": {
+            "function_origin": "40297d",
+            "instruction": "leave\n",
+            "full_instruction": "leave",
+            "incorrect": false
+        },
+        "402a46": {
+            "function_origin": "40297d",
+            "instruction": "ret",
+            "full_instruction": "ret 0x10",
+            "incorrect": true,
+            "missing_uses": [],
+            "extra_uses": [
+                "+[+esp]"
+            ],
+            "answer_uses": [
+                "+esp"
+            ],
+            "submission_uses": [
+                "+esp",
+                "+[+esp]"
+            ],
+            "orig_answer_uses": [
+                "esp"
+            ],
+            "orig_submission_uses": [
+                "[esp]",
+                "esp"
+            ]
+        }
+    },
+    "counts": {
+        "edges": {
+            "total_correct_edges": 1607,
+            "missing_edges": 9,
+            "extra_edges": 0
+        },
+        "nodes": {
+            "count_missing_nodes": 0,
+            "total_nodes": 1471,
+            "missing_nodes": []
+        },
+        "instructions": {
+            "mov": {
+                "total": 361,
+                "incorrect": 164
+            },
+            "add": {
+                "total": 105,
+                "incorrect": 1
+            },
+            "sub": {
+                "total": 43,
+                "incorrect": 2
+            },
+            "call": {
+                "total": 96,
+                "incorrect": 71
+            },
+            "cmp": {
+                "total": 314,
+                "incorrect": 19
+            },
+            "test": {
+                "total": 55,
+                "incorrect": 0
+            },
+            "xor": {
+                "total": 48,
+                "incorrect": 0
+            },
+            "push": {
+                "total": 1891,
+                "incorrect": 22
+            },
+            "pop": {
+                "total": 444,
+                "incorrect": 0
+            },
+            "lea": {
+                "total": 221,
+                "incorrect": 110
+            },
+            "all_jmps": {
+                "total": 136,
+                "incorrect": 2
+            },
+            "other": {
+                "total": 136,
+                "incorrect": 11
+            }
+        }
+    }
+}
