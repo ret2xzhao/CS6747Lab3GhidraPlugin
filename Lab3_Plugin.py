@@ -1,12 +1,13 @@
 """
-Data Dependence Pseudo Algorithm:
+Data Dependence Algorithm:
 1. Enhance the analyze_instruction function to accurately capture all definitions and uses of variables.
     - Fix existing bugs in the function.
-2. Implement a method to traverse the Control Flow Graph (CFG) to find dependencies based on the collected definitions and uses. This involves:
-    - Building a dictionary where the key is the instruction address, and the values are the instructions it can traverse to, starting from "START".
-    - Finding the most recent definition of a variable before its use by traversing the CFG backwards. To avoid the path explosion problem often encountered with loops, set an iteration limit.
-3. Modify the output to include data dependencies for each instruction.
-4. Generate a data dependency graph in DOT format.
+2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the Control Flow Graph (CFG) to find dependencies based on the collected definitions and uses.
+    - Building a dictionary where the key is each path within the function, and the values are the instructions that the path can traverse, starting from "Start"
+    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit.
+3. Along the path for each instruction, find the most recent definition of a variable before its use by traversing the path backwards.
+4. Modify the output to include data dependencies for each instruction.
+5. Generate a data dependency graph in DOT format.
 """
 
 import os
