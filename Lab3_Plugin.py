@@ -2,12 +2,36 @@
 Data Dependence Algorithm:
 1. Enhance the analyze_instruction function to accurately capture all definitions and uses of variables.
     - Fix existing bugs in the function.
-2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the Control Flow Graph (CFG) to find dependencies based on the collected definitions and uses.
-    - Building a dictionary where the key is each path within the function, and the values are the instructions that the path can traverse, starting from "Start"
-    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit.
-3. Along the path for each instruction, find the most recent definition of a variable before its use by traversing the path backwards.
+
+2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the CFG to find dependencies based on the collected definitions and uses.
+    - For functions with multiple RET instructions, enumerate paths for each RET. Consider using a recursive reverse search of the CFG.
+    - Each path should start from "START"
+    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit (execute each loop at least twice).
+    - Ensure full path coverage, including cycles and cycles within cycles.
+3. Identify the Most Recent Definition of a Variable: For each instruction along the path, find the most recent definition of a variable before its use by traversing the path backward.
 4. Modify the output to include data dependencies for each instruction.
 5. Generate a data dependency graph in DOT format.
+
+General Principles:
+- If a register or pointer has not been modified in the function, data dependence is on START.
+- The CFG should be followed in reverse instead of linear search to ensure that conditional jumps do not disrupt the algorithm.
+
+Algorithm should roughly be as below:
+- Register input: DD on the most recent instruction that defines the register.
+- Pointer input: DD on the most recent instruction that defines the register AND the most recent instruction that defines the data held at that pointer.
+- Conditional Jumps: DD on the most recent instruction that defines the relevant Flag (e.g., SUB, CMP, TEST).
+- Address Input: DD on the address.
+- POP instruction: POP takes a value (uses ESP and takes the most recent value). Depends on the current value of ESP and the value it will be popping from the stack.
+- PUSH instruction: PUSH adds a value (uses ESP and defines a new value), DD on the most recent POP/PUSH and the dependency on whatever value they're pushing.
+
+Example:
+MOV EAX, 0x1 -> DD: 
+MOV ECX, 0x2 -> DD:
+PUSH ECX -> DD: 2, START
+PUSH EAX -> DD: 3,1
+POP ECX -> DD: 4
+POP EAX-> DD: 5, 3
+
 """
 
 import os
@@ -23,7 +47,6 @@ functions_count = 0
 addresses_count = 0
 instructions_count = 0
 instruction_def_use = {}
-
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
     """
@@ -153,7 +176,7 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'ADD' or mnemonic == 'SUB':
         if 'eflags' not in defs:
             defs.append('eflags')
-    elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':  #Done
+    elif mnemonic == 'AND' or mnemonic == 'OR' or mnemonic == 'XOR':
         if 'eflags' not in defs:
             defs.append('eflags')
     elif mnemonic == 'CMP':
@@ -192,7 +215,7 @@ def analyze_instruction(instruction, addr_str):
         pass
     elif mnemonic == 'MOVZX':
         pass
-    elif mnemonic == 'POP': #Done
+    elif mnemonic == 'POP':
         if 'ESP' not in defs:
             defs.append('ESP')
         if '[ESP]' not in uses:
@@ -229,7 +252,7 @@ def analyze_instruction(instruction, addr_str):
         uses.append('EAX')
         uses.append('EDI')
         uses.append('eflags')
-    elif mnemonic == 'TEST':  #Done
+    elif mnemonic == 'TEST':
         if 'eflags' not in defs:
             defs.append('eflags')
     else:
