@@ -175,6 +175,7 @@ def analyze_instruction(instruction, addr_str):
             defs.append(str(destReg))
         sourceOperand = instruction.getDefaultOperandRepresentation(1)
         memoryRefMatch = re.search(r'\[(.*?)\]', sourceOperand)
+
         foundRegisters = set(re.findall(r'\b([a-zA-Z]+)\b', memoryRefMatch.group(1)))
         for reg in foundRegisters:
             if reg not in uses:
