@@ -2,6 +2,7 @@
 Data Dependence Algorithm:
 1. Enhance the analyze_instruction function to accurately capture all definitions and uses of variables.
     - Fix existing bugs in the function.
+
 2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the CFG to find dependencies based on the collected definitions and uses.
     - For functions with multiple RET instructions, enumerate paths for each RET. Consider using a recursive reverse search of the CFG.
     - Each path should start from "START"
@@ -30,6 +31,7 @@ PUSH ECX -> DD: 2, START
 PUSH EAX -> DD: 3,1
 POP ECX -> DD: 4
 POP EAX-> DD: 5, 3
+
 """
 
 import os
@@ -197,6 +199,7 @@ def analyze_instruction(instruction, addr_str):
             defs.append(str(destReg))
         sourceOperand = instruction.getDefaultOperandRepresentation(1)
         memoryRefMatch = re.search(r'\[(.*?)\]', sourceOperand)
+
         foundRegisters = set(re.findall(r'\b([a-zA-Z]+)\b', memoryRefMatch.group(1)))
         for reg in foundRegisters:
             if reg not in uses:
