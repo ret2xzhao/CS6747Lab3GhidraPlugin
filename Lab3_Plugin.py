@@ -348,7 +348,7 @@ def reverse_traverse_cfg(func, ret_blocks):
     # Initialize a list to store all unique paths found from RET blocks to the start of the function
     paths = []
 
-    def dfs(current_block, path, visited):
+    def dfs(current_block, path, visited, monitor):
         """
         Recursive DFS to traverse the CFG in reverse, from RET to start, handling loop unrolling.
         
@@ -364,7 +364,7 @@ def reverse_traverse_cfg(func, ret_blocks):
         # Append the current block to the path
         new_path = path + [current_block]
         # Get source blocks (predecessors) for the current block
-        sources = list(current_block.getSources()) # Here is an issue
+        sources = [current_block.getSources(monitor)] # Here is an issue
 
         # If there are no source blocks, this path has reached the start; add it to the list of paths
         if not sources:
@@ -374,9 +374,10 @@ def reverse_traverse_cfg(func, ret_blocks):
         # Iterate over each source block and continue the traversal
         for src_block in sources:
             # Increment visit count for the source block
+            print("src_block: ", src_block)
             visited[src_block] += 1
             # Recursively call dfs with the source block, the current path, and the updated visited dict
-            dfs(src_block, new_path, visited.copy())
+            dfs(src_block, new_path, visited.copy(), monitor)
 
     # Iterate over each RET block to start a new path traversal
     for ret_block in ret_blocks:
@@ -386,11 +387,11 @@ def reverse_traverse_cfg(func, ret_blocks):
         codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
         # Initialize visited dictionary with all blocks set to 0 visits
         visited_blocks = {block: 0 for block in codeBlockIter}
+        print("visited_blocks: ", visited_blocks)
         # Start DFS from each RET block, with an empty path and the initialized visited_blocks dictionary
-        dfs(ret_block, [], visited_blocks)
+        dfs(ret_block, [], visited_blocks, monitor)
 
     return paths
-
 
 def process_functions():
     global functions_count
@@ -417,7 +418,7 @@ def process_functions():
 
 
 def main():
-    try:
+    #try:
         final_result = process_functions()
         print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
                                                                               instructions_count))
@@ -431,8 +432,8 @@ def main():
         print("submission.dot created.")
         print(instruction_def_use)
 
-    except Exception as e:
-        raise Exception("Failed to create submission.dot. Error: {}".format(e))
+    #except Exception as e:
+        #raise Exception("Failed to create submission.dot. Error: {}".format(e))
 
         
 if __name__ == '__main__':
