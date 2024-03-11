@@ -2,7 +2,6 @@
 Data Dependence Algorithm:
 1. Enhance the analyze_instruction function to accurately capture all definitions and uses of variables.
     - Fix existing bugs in the function.
-
 2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the CFG to find dependencies based on the collected definitions and uses.
     - For functions with multiple RET instructions, enumerate paths for each RET. Consider using a recursive reverse search of the CFG.
     - Each path should start from "START"
@@ -31,7 +30,6 @@ PUSH ECX -> DD: 2, START
 PUSH EAX -> DD: 3,1
 POP ECX -> DD: 4
 POP EAX-> DD: 5, 3
-
 """
 
 import os
@@ -199,7 +197,6 @@ def analyze_instruction(instruction, addr_str):
             defs.append(str(destReg))
         sourceOperand = instruction.getDefaultOperandRepresentation(1)
         memoryRefMatch = re.search(r'\[(.*?)\]', sourceOperand)
-
         foundRegisters = set(re.findall(r'\b([a-zA-Z]+)\b', memoryRefMatch.group(1)))
         for reg in foundRegisters:
             if reg not in uses:
@@ -313,7 +310,86 @@ def collect_instructions(func):
                         conditional_jumps.add(addr_str)
 
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
+    
+    print(ret_instructions)
+    
     return create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
+
+
+def get_entry_block(func):
+    basicBlockModel = BasicBlockModel(currentProgram)
+    monitor = ConsoleTaskMonitor()
+    addrSet = func.getBody()
+    codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
+    entry_block = codeBlockIter.next()
+    return entry_block # entry_block is <type 'ghidra.program.model.block.CodeBlockImpl'>.
+
+
+def find_ret_blocks(func):
+    ret_blocks = set()
+    basicBlockModel = BasicBlockModel(currentProgram)
+    monitor = ConsoleTaskMonitor()
+    addrSet = func.getBody()
+    codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
+
+    while codeBlockIter.hasNext():
+        codeBlock = codeBlockIter.next()
+        addressIterator = codeBlock.getAddresses(True)
+        for addr in addressIterator:
+            instruction = getInstructionAt(addr)
+            if instruction and instruction.getMnemonicString() == 'RET':
+                ret_blocks.add(codeBlock)
+                break
+
+    return list(ret_blocks)
+
+
+def reverse_traverse_cfg(func, ret_blocks):
+    # Initialize a list to store all unique paths found from RET blocks to the start of the function
+    paths = []
+
+    def dfs(current_block, path, visited):
+        """
+        Recursive DFS to traverse the CFG in reverse, from RET to start, handling loop unrolling.
+        
+        Parameters:
+        - current_block: The current block being visited in the traversal.
+        - path: The path taken to reach the current block.
+        - visited: A dictionary tracking the number of times each block has been visited to handle loop unrolling.
+        """
+        # If the current block has been visited more than the loop unrolling limit, stop the recursion
+        if visited[current_block] > 2:
+            return
+
+        # Append the current block to the path
+        new_path = path + [current_block]
+        # Get source blocks (predecessors) for the current block
+        sources = list(current_block.getSources()) # Here is an issue
+
+        # If there are no source blocks, this path has reached the start; add it to the list of paths
+        if not sources:
+            paths.append(new_path)
+            return
+
+        # Iterate over each source block and continue the traversal
+        for src_block in sources:
+            # Increment visit count for the source block
+            visited[src_block] += 1
+            # Recursively call dfs with the source block, the current path, and the updated visited dict
+            dfs(src_block, new_path, visited.copy())
+
+    # Iterate over each RET block to start a new path traversal
+    for ret_block in ret_blocks:
+        basicBlockModel = BasicBlockModel(currentProgram)
+        monitor = ConsoleTaskMonitor()
+        addrSet = func.getBody()
+        codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
+        # Initialize visited dictionary with all blocks set to 0 visits
+        visited_blocks = {block: 0 for block in codeBlockIter}
+        # Start DFS from each RET block, with an empty path and the initialized visited_blocks dictionary
+        dfs(ret_block, [], visited_blocks)
+
+    return paths
 
 
 def process_functions():
@@ -323,10 +399,19 @@ def process_functions():
     functions = function_manager.getFunctions(True)
 
     for func in functions:
-        functions_count += 1
-        dot_graph = collect_instructions(func)
-        print(dot_graph)
-        final_result += dot_graph + "\n\n"
+        if func.getName() == "FUN_004019eb":
+            functions_count += 1
+            dot_graph = collect_instructions(func)
+            print(dot_graph)
+            final_result += dot_graph + "\n\n"
+            
+            entry_block = get_entry_block(func)
+            print("entry_block: {}".format(entry_block))
+            
+            ret_blocks = find_ret_blocks(func)
+            print("ret_blocks: {}".format(ret_blocks))
+
+            reverse_traverse_cfg(func, ret_blocks)
 
     return final_result
 
@@ -349,5 +434,6 @@ def main():
     except Exception as e:
         raise Exception("Failed to create submission.dot. Error: {}".format(e))
 
+        
 if __name__ == '__main__':
     main()
