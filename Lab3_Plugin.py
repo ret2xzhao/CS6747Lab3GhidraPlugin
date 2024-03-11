@@ -46,6 +46,17 @@ addresses_count = 0
 instructions_count = 0
 instruction_def_use = {}
 
+class DDStorage():
+    def __init__(self):
+        #self.uses = {}
+        self.defs = {}#{regester/pointer offset: address}
+    def has(self, register):
+        return register in self.defs
+    def getAddress(self, register):
+        return self.defs[register]
+    def newDefine(self, register, address):
+        self.defs[register] = address
+
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
     """
     Generates a DOT graph representation of the control flow within a function.
@@ -393,6 +404,7 @@ def reverse_traverse_cfg(func, ret_blocks):
 
     return paths
 
+
 def process_functions():
     global functions_count
     final_result = ""
@@ -415,6 +427,29 @@ def process_functions():
             reverse_traverse_cfg(func, ret_blocks)
 
     return final_result
+
+'''
+Processes one line of assembly code. should be called in a loop to process every line in a basic block
+
+@param uses: a list of 'USE', contains register, or an pointer offset, data, etc. that is used in the assembly code
+@param defs: a list of 'DEF', same as 'USE', that is defined or modified in the assembly code
+@param addr: a string that represents the address of the current line of assembly code.
+@param DDStorage, an object contains all previously defined registers, each basic block should have its own Storage object(?)
+
+@return: a list of data dependency, in form of ["address"], contains "START" if used 
+'''
+def processDataDep(uses, defs, addr, DDStorage):
+    dependsOn = []
+    for i in uses:
+        if DDStorage.has(i):
+            dependsOn.append(DDStorage.getAddress(i))
+        else:
+            if 'START' not in dependsOn:
+                dependsOn.append('START')
+    for i in defs:
+        DDStorage.newDefine(i, addr)
+
+    return dependsOn
 
 
 def main():
