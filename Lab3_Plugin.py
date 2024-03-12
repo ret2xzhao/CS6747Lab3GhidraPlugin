@@ -5,7 +5,7 @@ Data Dependence Algorithm:
 2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the CFG to find dependencies based on the collected definitions and uses.
     - For functions with multiple RET instructions, enumerate paths for each RET. Consider using a recursive reverse search of the CFG.
     - Each path should start from "START"
-    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit (execute each loop at least twice).
+    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit (execute each loop at most twice).
     - Ensure full path coverage, including cycles and cycles within cycles.
 3. Identify the Most Recent Definition of a Variable: For each instruction along the path, find the most recent definition of a variable before its use by traversing the path backward.
 4. Modify the output to include data dependencies for each instruction.
@@ -327,13 +327,18 @@ def collect_instructions(func):
     return create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
 
 
-def get_entry_block(func):
-    basicBlockModel = BasicBlockModel(currentProgram)
-    monitor = ConsoleTaskMonitor()
+def get_function_entry_block(func, basicBlockModel, monitor):
+    """
+    Retrieves the entry block for the function.
+    
+    :param func: The function to get the entry block for.
+    :param basicBlockModel: The basic block model used for block analysis.
+    :param monitor: The task monitor.
+    :return: The entry block of the function.
+    """
     addrSet = func.getBody()
-    codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
-    entry_block = codeBlockIter.next()
-    return entry_block # entry_block is <type 'ghidra.program.model.block.CodeBlockImpl'>.
+    entryBlock = basicBlockModel.getCodeBlockAt(func.getEntryPoint(), monitor)
+    return entryBlock
 
 
 def find_ret_blocks(func):
@@ -355,53 +360,56 @@ def find_ret_blocks(func):
     return list(ret_blocks)
 
 
-def reverse_traverse_cfg(func, ret_blocks):
-    # Initialize a list to store all unique paths found from RET blocks to the start of the function
-    paths = []
-
-    def dfs(current_block, path, visited, monitor):
+def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
+    def traverse(block, visited, path, paths, entry_block, loop_limit=2):
         """
-        Recursive DFS to traverse the CFG in reverse, from RET to start, handling loop unrolling.
+        Recursively traverse the CFG in reverse, starting from a given block.
         
-        Parameters:
-        - current_block: The current block being visited in the traversal.
-        - path: The path taken to reach the current block.
-        - visited: A dictionary tracking the number of times each block has been visited to handle loop unrolling.
+        :param block: The current block to process.
+        :param visited: A dictionary tracking the visit count for each block.
+        :param path: The current accumulation of blocks in the path.
+        :param paths: A list of all paths discovered.
+        :param entry_block: The entry block of the function.
+        :param loop_limit: The maximum number of times a block can be visited to prevent infinite loops.
         """
-        # If the current block has been visited more than the loop unrolling limit, stop the recursion
-        if visited[current_block] > 2:
+        # Check if the current block has reached the loop limit
+        if visited.get(block, 0) == loop_limit:
             return
 
-        # Append the current block to the path
-        new_path = path + [current_block]
-        # Get source blocks (predecessors) for the current block
-        sources = [current_block.getSources(monitor)] # Here is an issue
+        # Update visitation count
+        visited[block] = visited.get(block, 0) + 1
 
-        # If there are no source blocks, this path has reached the start; add it to the list of paths
-        if not sources:
+        # Prepend the current block to the path
+        new_path = [block] + path
+
+        # If we've reached the entry block, save the path and return
+        if block == entry_block:
             paths.append(new_path)
             return
 
-        # Iterate over each source block and continue the traversal
-        for src_block in sources:
-            # Increment visit count for the source block
-            print("src_block: ", src_block)
-            visited[src_block] += 1
-            # Recursively call dfs with the source block, the current path, and the updated visited dict
-            dfs(src_block, new_path, visited.copy(), monitor)
+        # Recursively visit the predecessors of the current block
+        sources_iterator = block.getSources(monitor)
+        has_predecessors = False
+        while sources_iterator.hasNext():
+            has_predecessors = True
+            source_block = sources_iterator.next().getSourceBlock()
+            traverse(source_block, visited.copy(), new_path, paths, entry_block)
 
-    # Iterate over each RET block to start a new path traversal
+        # If the block has no predecessors, it's a potential entry path, save it
+        if not has_predecessors:
+            paths.append(new_path)
+
+    # Retrieve the entry block of the function
+    entry_block = get_function_entry_block(func, basicBlockModel, monitor)
+
+    paths = []
+    visited = {block: 0 for block in basicBlockModel.getCodeBlocksContaining(func.getBody(), monitor)}
     for ret_block in ret_blocks:
-        basicBlockModel = BasicBlockModel(currentProgram)
-        monitor = ConsoleTaskMonitor()
-        addrSet = func.getBody()
-        codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
-        # Initialize visited dictionary with all blocks set to 0 visits
-        visited_blocks = {block: 0 for block in codeBlockIter}
-        print("visited_blocks: ", visited_blocks)
-        # Start DFS from each RET block, with an empty path and the initialized visited_blocks dictionary
-        dfs(ret_block, [], visited_blocks, monitor)
+        traverse(ret_block, visited, [], paths, entry_block)
 
+    for item in paths:
+        print(item)
+        print()
     return paths
 
 
@@ -413,18 +421,17 @@ def process_functions():
 
     for func in functions:
         if func.getName() == "FUN_004019eb":
+            basicBlockModel = BasicBlockModel(currentProgram)
+            monitor = ConsoleTaskMonitor()
             functions_count += 1
             dot_graph = collect_instructions(func)
             print(dot_graph)
             final_result += dot_graph + "\n\n"
             
-            entry_block = get_entry_block(func)
-            print("entry_block: {}".format(entry_block))
-            
             ret_blocks = find_ret_blocks(func)
             print("ret_blocks: {}".format(ret_blocks))
 
-            reverse_traverse_cfg(func, ret_blocks)
+            reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor)
 
     return final_result
 
@@ -453,7 +460,9 @@ def processDataDep(uses, defs, addr, DDStorage):
 
 
 def main():
-    #try:
+    process_functions()
+    """
+    try:
         final_result = process_functions()
         print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
                                                                               instructions_count))
@@ -467,9 +476,9 @@ def main():
         print("submission.dot created.")
         print(instruction_def_use)
 
-    #except Exception as e:
-        #raise Exception("Failed to create submission.dot. Error: {}".format(e))
-
+    except Exception as e:
+        raise Exception("Failed to create submission.dot. Error: {}".format(e))
+    """
         
 if __name__ == '__main__':
     main()
