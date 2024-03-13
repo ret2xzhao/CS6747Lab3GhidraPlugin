@@ -5,7 +5,7 @@ Data Dependence Algorithm:
 2. Traverse the Control Flow Graph (CFG): Implement a method to traverse the CFG to find dependencies based on the collected definitions and uses.
     - For functions with multiple RET instructions, enumerate paths for each RET. Consider using a recursive reverse search of the CFG.
     - Each path should start from "START"
-    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit (execute each loop at most twice).
+    - To avoid the path explosion problem often encountered with loops, set a loop unrolling limit (execute each loop at least twice).
     - Ensure full path coverage, including cycles and cycles within cycles.
 3. Identify the Most Recent Definition of a Variable: For each instruction along the path, find the most recent definition of a variable before its use by traversing the path backward.
 4. Modify the output to include data dependencies for each instruction.
@@ -323,7 +323,6 @@ def collect_instructions(func):
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
     
     print(ret_instructions)
-    
     return create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
 
 
@@ -336,7 +335,6 @@ def get_function_entry_block(func, basicBlockModel, monitor):
     :param monitor: The task monitor.
     :return: The entry block of the function.
     """
-    addrSet = func.getBody()
     entryBlock = basicBlockModel.getCodeBlockAt(func.getEntryPoint(), monitor)
     return entryBlock
 
@@ -360,8 +358,52 @@ def find_ret_blocks(func):
     return list(ret_blocks)
 
 
+def path_to_instructions(path):
+    instructions = []
+    for block in path:
+        # Get the minimum and maximum addresses for the block
+        minAddress = block.getMinAddress()
+        maxAddress = block.getMaxAddress()
+
+        # Create an instruction iterator for the block's address range
+        instructionIterator = currentProgram.getListing().getInstructions(minAddress, True)
+    
+        while instructionIterator.hasNext():
+            instr = instructionIterator.next()
+
+            # Append the instruction to the list if it's within the block's range
+            if instr.getMinAddress().compareTo(maxAddress) <= 0:
+                instructions.append(instr)
+            else:
+                # If the instruction address exceeds the block's max address, stop processing this block
+                break
+    print()
+    print(instructions)
+    return instructions
+
+
+def display_paths(paths):
+    for path in paths:
+        print(path)
+        print()
+    print("The length of paths is {}".format(len(paths)))
+
+
+def traverse(block, visited, path, paths, entry_block, loop_limit=1):
+    if visited.get(block, 0) >= loop_limit:
+        return
+    visited[block] = visited.get(block, 0) + 1
+    new_path = [block] + path
+    if block == entry_block:
+        paths.append(new_path)
+        return
+    sources_iterator = block.getSources(monitor)
+    while sources_iterator.hasNext():
+        source_block = sources_iterator.next().getSourceBlock()
+        traverse(source_block, visited.copy(), new_path, paths, entry_block, loop_limit)
+
 def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
-    def traverse(block, visited, path, paths, entry_block, loop_limit=2):
+    def traverse(block, visited, path, paths, entry_block, loop_limit=1):
         """
         Recursively traverse the CFG in reverse, starting from a given block.
         
@@ -407,10 +449,15 @@ def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
     for ret_block in ret_blocks:
         traverse(ret_block, visited, [], paths, entry_block)
 
-    for item in paths:
-        print(item)
-        print()
-    return paths
+    # display_paths(paths)
+
+    all_instructions = []
+    for path in paths:
+        path_instructions = path_to_instructions(path)
+        all_instructions.append(path_instructions)
+
+    print(len(all_instructions))
+    return all_instructions
 
 
 def process_functions():
@@ -420,7 +467,8 @@ def process_functions():
     functions = function_manager.getFunctions(True)
 
     for func in functions:
-        if func.getName() == "FUN_004019eb":
+        #if func.getName() == "FUN_004019eb":
+        if func.getName() != "FUN_00401406":
             basicBlockModel = BasicBlockModel(currentProgram)
             monitor = ConsoleTaskMonitor()
             functions_count += 1
@@ -429,11 +477,12 @@ def process_functions():
             final_result += dot_graph + "\n\n"
             
             ret_blocks = find_ret_blocks(func)
-            print("ret_blocks: {}".format(ret_blocks))
+        #print("ret_blocks: {}".format(ret_blocks))
 
             reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor)
 
     return final_result
+
 
 '''
 Processes one line of assembly code. should be called in a loop to process every line in a basic block
