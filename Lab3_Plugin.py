@@ -322,8 +322,8 @@ def collect_instructions(func):
 
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
     
-    print(ret_instructions)
-    return create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
+    print("ret: ", ret_instructions)
+    return [instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info]
 
 
 def get_function_entry_block(func, basicBlockModel, monitor):
@@ -377,8 +377,8 @@ def path_to_instructions(path):
             else:
                 # If the instruction address exceeds the block's max address, stop processing this block
                 break
-    print()
-    print(instructions)
+    print("===")
+    print("||ins:", instructions)
     return instructions
 
 
@@ -456,7 +456,7 @@ def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
         path_instructions = path_to_instructions(path)
         all_instructions.append(path_instructions)
 
-    print(len(all_instructions))
+    print("length: ",len(all_instructions))
     return all_instructions
 
 
@@ -472,14 +472,16 @@ def process_functions():
             basicBlockModel = BasicBlockModel(currentProgram)
             monitor = ConsoleTaskMonitor()
             functions_count += 1
-            dot_graph = collect_instructions(func)
+            collectedFunc = collect_instructions(func)
+            dot_graph = create_dot_graph(func, *collectedFunc)
             print(dot_graph)
             final_result += dot_graph + "\n\n"
-            
+
             ret_blocks = find_ret_blocks(func)
-        #print("ret_blocks: {}".format(ret_blocks))
+            print("ret_blocks: {}".format(ret_blocks))
 
             reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor)
+        #break
 
     return final_result
 
