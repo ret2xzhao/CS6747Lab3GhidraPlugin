@@ -40,22 +40,49 @@ import ghidra.program.model.symbol.RefType as RefType
 import ghidra.util.task.ConsoleTaskMonitor as ConsoleTaskMonitor
 from ghidra.program.model.lang import Register
 
-
 functions_count = 0
 addresses_count = 0
 instructions_count = 0
 instruction_def_use = {}
 
+
 class DDStorage():
     def __init__(self):
-        #self.uses = {}
-        self.defs = {}#{regester/pointer offset: address}
+        # self.uses = {}
+        self.defs = {}  # {regester/pointer offset: address}
+
     def has(self, register):
         return register in self.defs
+
     def getAddress(self, register):
         return self.defs[register]
+
     def newDefine(self, register, address):
         self.defs[register] = address
+
+    def processDataDep(self, uses, defs, addr):
+        '''
+            Processes one line of assembly code. should be called in a loop to process every line in a basic block
+
+            @param uses: a list of 'USE', contains register, or an pointer offset, data, etc. that is used in the assembly code
+            @param defs: a list of 'DEF', same as 'USE', that is defined or modified in the assembly code
+            @param addr: a string that represents the address of the current line of assembly code.
+            @param DDStorage, an object contains all previously defined registers, each basic block should have its own Storage object(?)
+
+            @return: a list of data dependency, in form of ["address"], contains "START" if used
+            '''
+        dependsOn = []
+        print("DEBUG PDD: ", uses, defs, addr)
+        for i in uses:
+            if self.has(i):
+                dependsOn.append(self.getAddress(i))
+            else:
+                if 'START' not in dependsOn:
+                    dependsOn.append('START')
+        for i in defs:
+            self.newDefine(i, addr)
+
+        return dependsOn
 
 def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info):
     """
@@ -95,8 +122,8 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instr
             if addr in jumps:
                 jump_to_node = address_to_node[jumps[addr]]
                 # Draw line for jump with style based on jump type
-                #jump_style = 'conditional_jump' if addr in conditional_jumps else 'unconditional_jump'
-                #dot_graph += '    {} -> {}; [{}]\n'.format(current_node, jump_to_node, jump_style)
+                # jump_style = 'conditional_jump' if addr in conditional_jumps else 'unconditional_jump'
+                # dot_graph += '    {} -> {}; [{}]\n'.format(current_node, jump_to_node, jump_style)
                 dot_graph += '    {} -> {};\n'.format(current_node, jump_to_node)
 
                 # For conditional jumps, also connect to the next sequential instruction
@@ -109,21 +136,80 @@ def create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instr
     return dot_graph
 
 
+def create_dot_graph_DD(func, instruction_list, jumps, conditional_jumps, ret_instructions, dependsOn):
+    """
+    Generates a DOT graph representation of the control flow within a function.
+    """
+    # Convert the entry point of the function to a hexadecimal string
+    def sort_key(item):
+        match = re.search(r'n(\d+)', item)
+        if match:
+            return int(match.group(1))
+        return float('inf')
+    entry_point = "0x{}".format(func.getEntryPoint().toString().lstrip('0'))
+    dot_graph = 'digraph "{}" {{\n'.format(entry_point)
+    node_counter = 1
+    address_to_node = {}  # Maps addresses to node names
+
+    # Create graph nodes for each instruction address
+    for addr in instruction_list:
+        # insert n0
+        if len(address_to_node) == 0:
+            node_name = 'n0'
+            addr_label = "START"
+            address_to_node[addr_label] = node_name
+            label = "START"
+            dot_graph += '    {} [label = "{}"];\n'.format(node_name, label)
+
+        # insert normal n1 & beyond
+        node_name = 'n{}'.format(node_counter)
+        addr_label = "0x{}".format(str(addr))  # Ensure '0x' prefix
+        # Assign a label with define-use information if available
+        if addr in dependsOn:
+            label = "{}; DD: {}".format(addr_label, ', '.join(map(lambda x: '0x' + x if x != "START" else x, dependsOn[addr])))
+        else:
+            label = "{};".format(addr_label)
+        dot_graph += '    {} [label = "{}"];\n'.format(node_name, label)
+        address_to_node[addr] = node_name
+        node_counter += 1
+
+    dot_graph += '\n'  # Separate nodes from edges
+
+    # Add edges between nodes based on sequential and jump instructions:
+
+    allDep = []
+    #print(address_to_node.items())
+    for addr, node in address_to_node.items():
+        #print(addr, node)
+        if addr != "START":
+            for thisDependent in dependsOn[addr]:
+                if thisDependent == "START":
+                    allDep.append('{} -> {}'.format(node, 'n0'))
+                else:
+                    allDep.append('{} -> {}'.format(node, address_to_node[thisDependent]))
+    allDep = sorted(allDep, key=sort_key)
+    for i in allDep:
+        dot_graph += '    {};\n'.format(i)
+    dot_graph += '}'
+    return dot_graph
+
+
+
 def operandRegisterHelper(instruction, defs, uses, addr_str):
     numOperand = instruction.getNumOperands()
     for i in range(numOperand):
         operand = instruction.getRegister(i)
-        opType  = instruction.getOperandRefType(i)
-        
+        opType = instruction.getOperandRefType(i)
+
         # Check if operand is a register and update uses/defs lists accordingly
         if operand is not None:
             if opType.isConditional() and opType.isFlow():
                 if "eflags" not in uses:
                     uses.append("eflags")
             if opType.isRead() and str(operand) not in uses:
-                    uses.append(str(operand))
+                uses.append(str(operand))
             if opType.isWrite() and str(operand) not in defs:
-                    defs.append(str(operand))
+                defs.append(str(operand))
 
         # Handle memory references involving registers
         else:
@@ -269,7 +355,7 @@ def analyze_instruction(instruction, addr_str):
     # Generate and return the define-use label without handling 'CALL'
     def_use_label = "D: {} U: {}".format(", ".join(sorted(defs)), ", ".join(sorted(uses)))
     instruction_def_use[addr_str] = {"def": defs, "use": uses}
-    return def_use_label
+    return def_use_label, defs, uses
 
 
 def is_in_eflags(register):
@@ -286,7 +372,8 @@ def collect_instructions(func):
     conditional_jumps = set()  # Addresses of conditional jumps
     ret_instructions = set()  # Addresses of return instructions
     def_use_info = {}  # Maps addresses to define-use information
-
+    storage = DDStorage()
+    dependsOn = {}  # Maps address to dependency information
     # Initialize the basic block model and task monitor
     basicBlockModel = BasicBlockModel(currentProgram)
     monitor = ConsoleTaskMonitor()
@@ -305,8 +392,11 @@ def collect_instructions(func):
                 addr_str = addr.toString()[2:]  # Extract address without "0x"
                 instruction_list.append(addr_str)
 
-                def_use_label = analyze_instruction(instruction, addr_str)
+                def_use_label, defs, uses = analyze_instruction(instruction, addr_str)
                 def_use_info[addr_str] = def_use_label
+
+                depend = storage.processDataDep(uses,defs,addr_str)
+                dependsOn[addr_str] = depend
 
                 # Check if the current instruction is a 'RET' instruction. If so, add its address to the "ret_instructions" set.
                 if instruction.getMnemonicString() == 'RET':
@@ -321,9 +411,9 @@ def collect_instructions(func):
                         conditional_jumps.add(addr_str)
 
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
-    
+
     print("ret: ", ret_instructions)
-    return [instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info]
+    return [instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info, dependsOn]
 
 
 def get_function_entry_block(func, basicBlockModel, monitor):
@@ -367,7 +457,7 @@ def path_to_instructions(path):
 
         # Create an instruction iterator for the block's address range
         instructionIterator = currentProgram.getListing().getInstructions(minAddress, True)
-    
+
         while instructionIterator.hasNext():
             instr = instructionIterator.next()
 
@@ -401,6 +491,7 @@ def traverse(block, visited, path, paths, entry_block, loop_limit=1):
     while sources_iterator.hasNext():
         source_block = sources_iterator.next().getSourceBlock()
         traverse(source_block, visited.copy(), new_path, paths, entry_block, loop_limit)
+
 
 def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
     def traverse(block, visited, path, paths, entry_block, loop_limit=1):
@@ -456,7 +547,7 @@ def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
         path_instructions = path_to_instructions(path)
         all_instructions.append(path_instructions)
 
-    print("length: ",len(all_instructions))
+    print("length: ", len(all_instructions))
     return all_instructions
 
 
@@ -467,14 +558,18 @@ def process_functions():
     functions = function_manager.getFunctions(True)
 
     for func in functions:
-        #if func.getName() == "FUN_004019eb":
-        if func.getName() != "FUN_00401406":
+        # if func.getName() == "FUN_004019eb":
+        #if func.getName() != "FUN_00401406":
+        if func.getName() == "FUN_00401078":
             basicBlockModel = BasicBlockModel(currentProgram)
             monitor = ConsoleTaskMonitor()
             functions_count += 1
-            collectedFunc = collect_instructions(func)
-            dot_graph = create_dot_graph(func, *collectedFunc)
+            instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info, dependsOn = collect_instructions(func)
+            dot_graph = create_dot_graph_DD(func, instruction_list, jumps, conditional_jumps, ret_instructions, dependsOn)
             print(dot_graph)
+            #print("debug: ", dependsOn['40101c'])
+            dot_graph_UD = create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions,def_use_info)
+            print(dot_graph_UD)
             final_result += dot_graph + "\n\n"
 
             ret_blocks = find_ret_blocks(func)
@@ -486,28 +581,7 @@ def process_functions():
     return final_result
 
 
-'''
-Processes one line of assembly code. should be called in a loop to process every line in a basic block
 
-@param uses: a list of 'USE', contains register, or an pointer offset, data, etc. that is used in the assembly code
-@param defs: a list of 'DEF', same as 'USE', that is defined or modified in the assembly code
-@param addr: a string that represents the address of the current line of assembly code.
-@param DDStorage, an object contains all previously defined registers, each basic block should have its own Storage object(?)
-
-@return: a list of data dependency, in form of ["address"], contains "START" if used 
-'''
-def processDataDep(uses, defs, addr, DDStorage):
-    dependsOn = []
-    for i in uses:
-        if DDStorage.has(i):
-            dependsOn.append(DDStorage.getAddress(i))
-        else:
-            if 'START' not in dependsOn:
-                dependsOn.append('START')
-    for i in defs:
-        DDStorage.newDefine(i, addr)
-
-    return dependsOn
 
 
 def main():
@@ -530,6 +604,7 @@ def main():
     except Exception as e:
         raise Exception("Failed to create submission.dot. Error: {}".format(e))
     """
-        
+
+
 if __name__ == '__main__':
     main()
