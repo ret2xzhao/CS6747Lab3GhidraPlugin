@@ -52,10 +52,11 @@ addresses_count = 0
 instructions_count = 0
 instruction_def_use = {}
 
+
 class DDStorage():
     def __init__(self):
         #self.uses = {}
-        self.defs = {}#{regester/pointer offset: address}
+        self.defs = {} #{register/pointer offset: address}
     def has(self, register):
         return register in self.defs
     def getAddress(self, register):
@@ -383,19 +384,24 @@ def path_to_instructions(path):
             else:
                 # If the instruction address exceeds the block's max address, stop processing this block
                 break
-    print()
-    print(instructions)
+
     return instructions
 
 
+def prepend_START_to_each_path(paths):
+    return [["START"] + path for path in paths]
+
+
 def display_paths(paths):
-    #for path in paths:
-    #    print(path)
-    #    print()
+    print()
+    for path in paths:
+        print(path)
+        print()
     print("The length of paths is {}".format(len(paths)))
 
 
-def reverse_traverse_cfg(func):
+
+def reverse_traverse_cfg(func, ret_blocks):
     # Initialize necessary components
     basicBlockModel = BasicBlockModel(currentProgram)
     monitor = ConsoleTaskMonitor()
@@ -403,9 +409,7 @@ def reverse_traverse_cfg(func):
     # Create a directed graph to represent the CFG
     cfg = nx.DiGraph()
 
-    # Use your existing functions to find entry and return blocks
     entry_block = get_function_entry_block(func, basicBlockModel, monitor)
-    ret_blocks = find_ret_blocks(func)
 
     # Populate the CFG with nodes for each block and edges to represent the control flow
     addrSet = func.getBody()
@@ -414,7 +418,6 @@ def reverse_traverse_cfg(func):
         current_block = codeBlockIter.next()
         cfg.add_node(current_block)
 
-        # Adaptation for iterating through the SimpleDestReferenceIterator
         destIterator = current_block.getDestinations(monitor)
         while destIterator.hasNext():
             destinationReference = destIterator.next()
@@ -422,20 +425,30 @@ def reverse_traverse_cfg(func):
             if successor_block:
                 cfg.add_edge(current_block, successor_block)
 
-    paths = []
-    # Use all_simple_paths with a cutoff to find paths without creating infinite loops
+    # Cycle detection and handling
+    #cycles = list(nx.simple_cycles(cfg))
+    #for cycle in cycles:
+        # Simple cycle breaking: remove one edge per cycle
+        #cfg.remove_edge(cycle[-1], cycle[0])  # Removes the edge leading back to the cycle's start
+
+    # Find paths from entry block to each of the return blocks
+    all_paths = []
     for ret_block in ret_blocks:
-        for path in nx.all_simple_paths(cfg, source=entry_block, target=ret_block, cutoff=100):
-            paths.append(path)
+        for path in nx.all_simple_paths(cfg, source=entry_block, target=ret_block):
+            all_paths.append(path)
 
     # Extract instructions from the paths
-    all_instructions = [path_to_instructions(path) for path in paths]
-
+    # Assuming a function `path_to_instructions` exists
+    all_paths_instructions = [path_to_instructions(path) for path in all_paths]
 
     # Additional processing or display
-    display_paths(paths)
+    # Assuming functions `display_paths` and `prepend_START_to_each_path` exist
+    display_paths(all_paths_instructions)
+    prepended_paths = prepend_START_to_each_path(all_paths_instructions)
+    display_paths(prepended_paths)
 
-    return all_instructions
+    return prepended_paths
+
 
 
 
@@ -446,22 +459,24 @@ def process_functions():
     functions = function_manager.getFunctions(True)
 
     for func in functions:
-        #if func.getName() == "FUN_004019eb":
+
+        if func.getName() == "FUN_004019eb":
         #if func.getName() == "FUN_00401406":
-        if func.getName() == "FUN_00402292":
-            basicBlockModel = BasicBlockModel(currentProgram)
-            monitor = ConsoleTaskMonitor()
+        #if func.getName() == "FUN_00402292":
+
             functions_count += 1
             dot_graph = collect_instructions(func)
             print(dot_graph)
             final_result += dot_graph + "\n\n"
             
             ret_blocks = find_ret_blocks(func)
-        #print("ret_blocks: {}".format(ret_blocks))
+            #print("ret_blocks: {}".format(ret_blocks))
 
-            reverse_traverse_cfg(func)
 
-    return final_result
+            all_instructions = reverse_traverse_cfg(func, ret_blocks)
+
+
+    return final_result, all_instructions
 
 
 '''
@@ -488,11 +503,37 @@ def processDataDep(uses, defs, addr, DDStorage):
     return dependsOn
 
 
-def main():
-    process_functions()
+def compute_data_dependencies(all_paths, instruction_def_use):
     """
+    Computes data dependencies for each instruction in each path.
+
+    :param all_paths: A list of paths, each path is a list of instructions.
+    :param instruction_def_use: A dictionary mapping instructions to their definitions and uses.
+    :return: A dictionary mapping each instruction to its data dependencies.
+    """
+    all_dependencies = {}
+
+    for path_index, path in enumerate(all_paths):
+        # Initialize a new DDStorage instance for each path
+        dd_storage = DDStorage()
+        
+        for instr in path:
+            if instr == "START":
+                continue  # Skip special START marker
+            
+
+    return all_dependencies
+
+
+def generate_DD_dot_graph():
+    pass
+
+
+def main():
+
     try:
-        final_result = process_functions()
+        final_result, all_instructions = process_functions()
+        DD_dot_graph = generate_DD_dot_graph()
         print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
                                                                               instructions_count))
         # Define the file path to the Desktop directory
@@ -507,7 +548,6 @@ def main():
 
     except Exception as e:
         raise Exception("Failed to create submission.dot. Error: {}".format(e))
-    """
         
 if __name__ == '__main__':
     main()
