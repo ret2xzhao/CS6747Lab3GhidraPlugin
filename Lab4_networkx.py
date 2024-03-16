@@ -400,6 +400,7 @@ def display_paths(paths):
     print("The length of paths is {}".format(len(paths)))
 
 
+
 def reverse_traverse_cfg(func, ret_blocks):
     # Initialize necessary components
     basicBlockModel = BasicBlockModel(currentProgram)
@@ -449,6 +450,8 @@ def reverse_traverse_cfg(func, ret_blocks):
     return prepended_paths
 
 
+
+
 def process_functions():
     global functions_count
     final_result = ""
@@ -456,9 +459,11 @@ def process_functions():
     functions = function_manager.getFunctions(True)
 
     for func in functions:
+
         if func.getName() == "FUN_004019eb":
         #if func.getName() == "FUN_00401406":
         #if func.getName() == "FUN_00402292":
+
             functions_count += 1
             dot_graph = collect_instructions(func)
             print(dot_graph)
@@ -467,7 +472,9 @@ def process_functions():
             ret_blocks = find_ret_blocks(func)
             #print("ret_blocks: {}".format(ret_blocks))
 
+
             all_instructions = reverse_traverse_cfg(func, ret_blocks)
+
 
     return final_result, all_instructions
 
