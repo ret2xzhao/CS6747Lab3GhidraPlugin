@@ -38,7 +38,6 @@ sys.path.append('/usr/lib64/python2.7/site-packages/gtk-2.0')
 sys.path.append('/usr/lib64/python2.7/site-packages')
 sys.path.append('/home/xzhao455/.local/lib/python2.7/site-packages')
 import networkx as nx
-
 import os
 import re
 from ghidra.program.model.block import BasicBlockModel
@@ -396,41 +395,48 @@ def display_paths(paths):
     print("The length of paths is {}".format(len(paths)))
 
 
-def reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor):
+def reverse_traverse_cfg(func):
+    # Initialize necessary components
+    basicBlockModel = BasicBlockModel(currentProgram)
+    monitor = ConsoleTaskMonitor()
 
-    def build_cfg_graph(func, basicBlockModel, monitor):
-        graph = nx.DiGraph()
-        entry_block = get_function_entry_block(func, basicBlockModel, monitor)
-        graph.add_node(entry_block)
+    # Create a directed graph to represent the CFG
+    cfg = nx.DiGraph()
 
-        # Recursively add nodes and edges
-        def add_edges(block):
-            sources_iterator = block.getSources(monitor)
-            while sources_iterator.hasNext():
-                source_block = sources_iterator.next().getSourceBlock()
-                if source_block not in graph:
-                    graph.add_node(source_block)
-                    add_edges(source_block)
-                graph.add_edge(source_block, block)
+    # Use your existing functions to find entry and return blocks
+    entry_block = get_function_entry_block(func, basicBlockModel, monitor)
+    ret_blocks = find_ret_blocks(func)
 
-        add_edges(entry_block)
-        return graph, entry_block
+    # Populate the CFG with nodes for each block and edges to represent the control flow
+    addrSet = func.getBody()
+    codeBlockIter = basicBlockModel.getCodeBlocksContaining(addrSet, monitor)
+    while codeBlockIter.hasNext():
+        current_block = codeBlockIter.next()
+        cfg.add_node(current_block)
 
-    # Construct CFG graph
-    cfg_graph, entry_block = build_cfg_graph(func, basicBlockModel, monitor)
-    
-    # Find all unique paths from return blocks to the entry block
+        # Adaptation for iterating through the SimpleDestReferenceIterator
+        destIterator = current_block.getDestinations(monitor)
+        while destIterator.hasNext():
+            destinationReference = destIterator.next()
+            successor_block = destinationReference.getDestinationBlock()
+            if successor_block:
+                cfg.add_edge(current_block, successor_block)
+
     paths = []
+    # Use all_simple_paths with a cutoff to find paths without creating infinite loops
     for ret_block in ret_blocks:
-        if ret_block in cfg_graph:
-            for path in nx.all_simple_paths(cfg_graph, source=entry_block, target=ret_block):
-                paths.append(path)
-    
-    # Process paths to extract instructions or any other required information
-    all_instructions = [path_to_instructions(path, basicBlockModel, monitor) for path in paths]
+        for path in nx.all_simple_paths(cfg, source=entry_block, target=ret_block, cutoff=100):
+            paths.append(path)
 
-    print(len(all_instructions))
+    # Extract instructions from the paths
+    all_instructions = [path_to_instructions(path) for path in paths]
+
+
+    # Additional processing or display
+    display_paths(paths)
+
     return all_instructions
+
 
 
 def process_functions():
@@ -441,8 +447,8 @@ def process_functions():
 
     for func in functions:
         #if func.getName() == "FUN_004019eb":
-        if func.getName() == "FUN_00401406":
-        #if func.getName() == "FUN_00402292":
+        #if func.getName() == "FUN_00401406":
+        if func.getName() == "FUN_00402292":
             basicBlockModel = BasicBlockModel(currentProgram)
             monitor = ConsoleTaskMonitor()
             functions_count += 1
@@ -453,7 +459,7 @@ def process_functions():
             ret_blocks = find_ret_blocks(func)
         #print("ret_blocks: {}".format(ret_blocks))
 
-            reverse_traverse_cfg(func, ret_blocks, basicBlockModel, monitor)
+            reverse_traverse_cfg(func)
 
     return final_result
 
