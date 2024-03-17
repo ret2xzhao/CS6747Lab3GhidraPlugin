@@ -429,7 +429,7 @@ class DDStorage():
             @return: a list of data dependency, in form of ["address"], contains "START" if used
             '''
         dependsOn = []
-        print("DEBUG PDD: " , uses, defs, addr)
+        print("DEBUG PDD: " , addr, defs, uses)
         for i in uses:
             if self.has(i):
                 dependsOn.append(self.getAddress(i))
@@ -455,8 +455,6 @@ def compute_data_dependencies(all_paths, instruction_def_use):
             instr_address = instr.getAddress().toString()
             if instr in instruction_def_use:
                 defs, uses = instruction_def_use[instr]['def'], instruction_def_use[instr]['use']
-                for thisDef in defs:
-                    storage.newDefine(thisDef, instr_address)
             else:
                 defs, uses = [], []
             dependencies = storage.processDataDep(uses, defs, instr_address)
