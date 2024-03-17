@@ -113,8 +113,8 @@ def operandRegisterHelper(instruction, defs, uses, addr_str):
                             uses.append(str(element))
                     if opType.isWrite():
                         isWrite = True
-                        if str(element) not in defs:
-                            defs.append(str(element))
+                        if str(element) not in uses:
+                            uses.append(str(element))
                 if isInstance and eor:
                     if (thisDynamic not in uses) and isRead:
                         uses.append(thisDynamic)
@@ -202,8 +202,6 @@ def analyze_instruction(instruction, addr_str):
     elif mnemonic == 'RET':
         if 'ESP' not in uses:
             uses.append('ESP')
-        if '[ESP]' not in uses:
-            uses.append('[ESP]')
         if 'ESP' not in defs:
             defs.append('ESP')
     elif mnemonic == 'SAR' or mnemonic == 'SAL':
@@ -459,11 +457,19 @@ def compute_data_dependencies(all_paths, instruction_def_use):
                 defs, uses = [], []
             dependencies = storage.processDataDep(uses, defs, instr_address)
             instr_key = (instr_address, instr)  # Use instruction's address and instruction as key
-            all_dependencies[instr_key] = {
-                'def': defs,
-                'use': uses,
-                'DD': dependencies,  # Now storing addresses of dependencies
-            }
+
+            if instr_key in all_dependencies:#not first entry, add to existed
+                all_dependencies[instr_key] = {
+                    'def': defs,
+                    'use': uses,
+                    'DD': list(set(all_dependencies[instr_key]['DD'] + dependencies))  # Now storing addresses of dependencies
+                }
+            else:#first entry
+                all_dependencies[instr_key] = {
+                    'def': defs,
+                    'use': uses,
+                    'DD': dependencies
+                }
 
     return all_dependencies
 
