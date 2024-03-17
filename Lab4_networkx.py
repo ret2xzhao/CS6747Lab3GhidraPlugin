@@ -403,73 +403,63 @@ def reverse_traverse_cfg(func, ret_blocks):
     return prepended_paths
 
 
-class DDStorage:
+class DDStorage():
     def __init__(self):
-        self.registers = {}
-        self.pointers = {}
-        self.flags = {}
-        self.stack = []
+        # self.uses = {}
+        self.defs = {}  # {regester/pointer offset: address}
 
-    def update_register(self, register, instr_address):
-        self.registers[register] = instr_address
+    def has(self, register):
+        return register in self.defs
 
-    def update_pointer(self, pointer, instr_address):
-        if pointer not in self.pointers:
-            self.pointers[pointer] = []
-        self.pointers[pointer].append(instr_address)
+    def getAddress(self, register):
+        return self.defs[register]
 
-    def update_flag(self, flag, instr_address):
-        self.flags[flag] = instr_address
+    def newDefine(self, register, address):
+        self.defs[register] = address
 
-    def pop_stack(self):
-        return self.stack.pop() if self.stack else None
+    def processDataDep(self, uses, defs, addr):
+        '''
+            Processes one line of assembly code. should be called in a loop to process every line in a basic block
 
-    def push_stack(self, instr_address):
-        self.stack.append(instr_address)
+            @param uses: a list of 'USE', contains register, or an pointer offset, data, etc. that is used in the assembly code
+            @param defs: a list of 'DEF', same as 'USE', that is defined or modified in the assembly code
+            @param addr: a string that represents the address of the current line of assembly code.
+            @param DDStorage, an object contains all previously defined registers, each basic block should have its own Storage object(?)
 
-    def find_dependencies(self, use):
-        dependencies = []
-        if use in self.registers:
-            dependencies.append(self.registers[use])
-        if use in self.pointers:
-            dependencies.extend(self.pointers[use])
-        if use in self.flags:
-            dependencies.append(self.flags[use])
-        return dependencies
+            @return: a list of data dependency, in form of ["address"], contains "START" if used
+            '''
+        dependsOn = []
+        print("DEBUG PDD: " , uses, defs, addr)
+        for i in uses:
+            if self.has(i):
+                dependsOn.append(self.getAddress(i))
+            else:
+                if 'START' not in dependsOn:
+                    dependsOn.append('START')
+        for i in defs:
+            self.newDefine(i, addr)
 
+        return dependsOn
 def compute_data_dependencies(all_paths, instruction_def_use):
     all_dependencies = {}
 
     for path_index, path in enumerate(all_paths):
-        dd_storage = DDStorage()  # Initialize a new DDStorage object for each path
-        definitions = {}  # Maps variables to their defining instruction address for direct dependencies
+        storage = DDStorage()  # Initialize a new DDStorage object for each path
+
 
         for instr_index, instr in enumerate(path):
             if instr == "START":
                 continue  # Skip processing for START instruction as it has no dependencies
 
             dependencies = []
-
+            instr_address = instr.getAddress().toString()
             if instr in instruction_def_use:
                 defs, uses = instruction_def_use[instr]['def'], instruction_def_use[instr]['use']
+                for thisDef in defs:
+                    storage.newDefine(thisDef, instr_address)
             else:
                 defs, uses = [], []
-
-            # Determine the instruction address
-            instr_address = instr.getAddress().toString()  # This line assumes you have a way to get the address
-
-            # Identify dependencies using addresses
-            for use in uses:
-                dep_addresses = dd_storage.find_dependencies(use)
-                dependencies.extend(dep_addresses)
-
-            # Update DDStorage with new definitions using addresses
-            for def_item in defs:
-                if def_item.startswith('[') and def_item.endswith(']'):
-                    dd_storage.update_pointer(def_item, instr_address)
-                else:
-                    dd_storage.update_register(def_item, instr_address)
-
+            dependencies = storage.processDataDep(uses, defs, instr_address)
             instr_key = (instr_address, instr)  # Use instruction's address and instruction as key
             all_dependencies[instr_key] = {
                 'def': defs,
@@ -495,7 +485,7 @@ def generate_DD_dot_graph(func, all_dependencies):
         node_name = 'n{}'.format(node_counter)
         address_to_node[instr_address] = node_name
         formatted_address = instr_address.lstrip('0')
-        dd_labels = ', '.join(['0x{}'.format(addr.lstrip('0')) for addr in all_dependencies[instr_key]['DD']]) if all_dependencies[instr_key]['DD'] else ''
+        dd_labels = ', '.join(['0x{}'.format(addr.lstrip('0')) if addr != 'START' else 'START' for addr in all_dependencies[instr_key]['DD']]) if all_dependencies[instr_key]['DD'] else ''
         dot_graph += ' {} [label = "0x{}; DD: {}"];\n'.format(node_name, formatted_address, dd_labels)
         node_counter += 1
 
@@ -529,7 +519,7 @@ def process_functions():
         #if func.getName() == "FUN_004019eb":
         #if func.getName() == "FUN_00401406":
         #if func.getName() == "FUN_00402292":
-        if func.getName() == "FUN_0040101c": # Special Case: The entry block is the ret block.
+        if func.getName() == "FUN_00401078": # Special Case: The entry block is the ret block.
             functions_count += 1
             def_use_graph = collect_instructions(func)
             print(def_use_graph)
