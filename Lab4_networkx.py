@@ -508,7 +508,7 @@ def generate_DD_dot_graph(func, instruction_list, all_dependencies):
     entry_point = "{}".format(func.getEntryPoint().toString().lstrip('0'))
     digraph_name = "digraph 0x{}".format(entry_point)
     dot_graph = "{} {{\n".format(digraph_name)
-    dot_graph += ' n0 [label = "START"];\n'
+    dot_graph += '    n0  [label = "START"];\n'
     
     address_to_node = {"START": "n0"}
     node_counter = 1
@@ -527,7 +527,7 @@ def generate_DD_dot_graph(func, instruction_list, all_dependencies):
         if matched_keys:
             for instr_key, deps in matched_keys:
                 dd_labels = ', '.join(['0x{}'.format(addr.lstrip('0')) if addr != 'START' else 'START' for addr in deps['DD']]) if deps['DD'] else ''
-                dot_graph += ' {} [label = "0x{}; DD: {}"];\n'.format(node_name, formatted_address, dd_labels)
+                dot_graph += '    {}  [label = "0x{}; DD: {}"];\n'.format(node_name, formatted_address, dd_labels)
 
                 for dep_address in deps['DD']:
                     if dep_address in address_to_node:
@@ -536,7 +536,7 @@ def generate_DD_dot_graph(func, instruction_list, all_dependencies):
                         dep_node = "n0"
                     edges.append((dep_address, instr_address))
         else:
-            dot_graph += ' {} [label = "0x{}; DD:"];\n'.format(node_name, formatted_address)
+            dot_graph += '    {}  [label = "0x{}; DD:"];\n'.format(node_name, formatted_address)
         
         node_counter += 1
 
@@ -545,7 +545,7 @@ def generate_DD_dot_graph(func, instruction_list, all_dependencies):
     for dep_address, src_address in sorted(edges, key=lambda x: int(x[1], 16)):
         dep_node = address_to_node.get(dep_address, "n0")
         src_node = address_to_node[src_address]
-        dot_graph += ' {} -> {};\n'.format(src_node, dep_node)
+        dot_graph += '    {} -> {};\n'.format(src_node, dep_node)
 
     dot_graph += '}\n'
     return dot_graph
