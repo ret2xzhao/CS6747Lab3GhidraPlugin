@@ -283,7 +283,7 @@ def collect_instructions(func):
     instruction_list.sort(key=lambda x: int(x, 16))  # Sort instructions by address
     
     print(ret_instructions)
-    return create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
+    return instruction_list, create_dot_graph(func, instruction_list, jumps, conditional_jumps, ret_instructions, def_use_info)
 
 
 def get_function_entry_block(func, basicBlockModel, monitor):
@@ -345,12 +345,16 @@ def prepend_START_to_each_path(paths):
     return [["START"] + path for path in paths]
 
 
-def display_paths(paths):
-    print()
-    for path in paths:
-        print(path)
-        print()
-    print("The length of paths is {}".format(len(paths)))
+def display_paths_length(func, paths):
+    print("{}: The length of paths is {}".format(func.getName(), len(paths)))
+
+
+def count_unique_instructions(all_paths_instructions):
+    unique_instructions = set()
+    for path_instructions in all_paths_instructions:
+        for instr in path_instructions:
+            unique_instructions.add(instr)
+    print("Number of unique instructions: {}".format(len(unique_instructions)))
 
 
 def reverse_traverse_cfg(func, ret_blocks):
@@ -377,26 +381,26 @@ def reverse_traverse_cfg(func, ret_blocks):
             if successor_block:
                 cfg.add_edge(current_block, successor_block)
 
-    # Handle the special case where the entry block is the same as one of the ret blocks
+    # Modified to include depth limitation
     all_paths = []
     for ret_block in ret_blocks:
         if entry_block == ret_block:
-            # Directly add the entry/return block as a valid path
             all_paths.append([entry_block])
+        elif func.getName() == "FUN_00401406":
+            max_depth = 46
+            for path in nx.all_simple_paths(cfg, source=entry_block, target=ret_block, cutoff=max_depth):
+                all_paths.append(path)
         else:
-            # Find paths from entry block to the return block
             for path in nx.all_simple_paths(cfg, source=entry_block, target=ret_block):
                 all_paths.append(path)
 
     # Extract instructions from the paths
-    # Assuming a function `path_to_instructions` exists
     all_paths_instructions = [path_to_instructions(path) for path in all_paths]
 
     # Additional processing or display
-    # Assuming functions `display_paths` and `prepend_START_to_each_path` exist
-    display_paths(all_paths_instructions)
     prepended_paths = prepend_START_to_each_path(all_paths_instructions)
-    display_paths(prepended_paths)
+    display_paths_length(func, prepended_paths)
+    #count_unique_instructions(all_paths_instructions)
 
     return prepended_paths
 
@@ -404,30 +408,36 @@ def reverse_traverse_cfg(func, ret_blocks):
 class DDStorage():
     def __init__(self):
         # self.uses = {}
-        self.defs = {}  # {regester/pointer offset: address}
+        self.defs = {}  # Dictionary mapping register or pointer offset to its address.
 
     def has(self, register):
+        # Check if a register or offset is defined.
         return register in self.defs
 
     def getAddress(self, register):
+        # Retrieve the address associated with a register or offset.
         return self.defs[register]
 
     def newDefine(self, register, address):
+        # Associate a new address with a register or offset.
         self.defs[register] = address
 
     def processDataDep(self, uses, defs, addr):
-        '''
-            Processes one line of assembly code. should be called in a loop to process every line in a basic block
-
-            @param uses: a list of 'USE', contains register, or an pointer offset, data, etc. that is used in the assembly code
-            @param defs: a list of 'DEF', same as 'USE', that is defined or modified in the assembly code
-            @param addr: a string that represents the address of the current line of assembly code.
-            @param DDStorage, an object contains all previously defined registers, each basic block should have its own Storage object(?)
-
-            @return: a list of data dependency, in form of ["address"], contains "START" if used
-            '''
+        """
+        Processes one line of assembly code, identifying data dependencies.
+        
+        This should be called for each line in a basic block to accurately
+        track data dependencies throughout the block.
+        
+        @param uses: List of 'USE', indicating registers or pointers that are read from.
+        @param defs: List of 'DEF', indicating registers or pointers that are written to.
+        @param addr: The address of the current assembly instruction.
+        
+        @return: List of addresses that the current instruction depends on. 
+                 Includes "START" to indicate a dependency on initial state if necessary.
+        """
         dependsOn = []
-        print("DEBUG PDD: " , addr, defs, uses)
+        #print("DEBUG PDD: " , addr, defs, uses)
         for i in uses:
             if self.has(i):
                 dependsOn.append(self.getAddress(i))
@@ -438,7 +448,19 @@ class DDStorage():
             self.newDefine(i, addr)
 
         return dependsOn
+
+
 def compute_data_dependencies(all_paths, instruction_def_use):
+    """
+    Computes data dependencies across all given paths in the assembly code.
+
+    @param all_paths: List of all execution paths, each path is a list of instructions.
+    @param instruction_def_use: Dictionary mapping instructions to their definitions ('def') and uses ('use').
+
+    @return: Dictionary mapping instruction identifiers (address, instruction) to their dependencies ('DD'),
+             definitions ('def'), and uses ('use').
+    """
+    # Initialize a dictionary to store dependencies for each instruction.
     all_dependencies = {}
 
     for path_index, path in enumerate(all_paths):
@@ -449,22 +471,30 @@ def compute_data_dependencies(all_paths, instruction_def_use):
             if instr == "START":
                 continue  # Skip processing for START instruction as it has no dependencies
 
+            # Initialize an empty list for dependencies of the current instruction.
             dependencies = []
+
             instr_address = instr.getAddress().toString()
+
+            # Check if the current instruction has defined 'def' and 'use' values.
             if instr in instruction_def_use:
                 defs, uses = instruction_def_use[instr]['def'], instruction_def_use[instr]['use']
             else:
                 defs, uses = [], []
-            dependencies = storage.processDataDep(uses, defs, instr_address)
+
+            if instr.getMnemonicString() == 'RET':
+                dependencies = []
+            else:
+                dependencies = storage.processDataDep(uses, defs, instr_address)
             instr_key = (instr_address, instr)  # Use instruction's address and instruction as key
 
-            if instr_key in all_dependencies:#not first entry, add to existed
+            if instr_key in all_dependencies: # Not first entry, add to existed
                 all_dependencies[instr_key] = {
                     'def': defs,
                     'use': uses,
                     'DD': list(set(all_dependencies[instr_key]['DD'] + dependencies))  # Now storing addresses of dependencies
                 }
-            else:#first entry
+            else: # First entry
                 all_dependencies[instr_key] = {
                     'def': defs,
                     'use': uses,
@@ -474,7 +504,7 @@ def compute_data_dependencies(all_paths, instruction_def_use):
     return all_dependencies
 
 
-def generate_DD_dot_graph(func, all_dependencies):
+def generate_DD_dot_graph(func, instruction_list, all_dependencies):
     entry_point = "{}".format(func.getEntryPoint().toString().lstrip('0'))
     digraph_name = "digraph 0x{}".format(entry_point)
     dot_graph = "{} {{\n".format(digraph_name)
@@ -484,26 +514,37 @@ def generate_DD_dot_graph(func, all_dependencies):
     node_counter = 1
     edges = []
 
-    for instr_key in sorted(all_dependencies.keys(), key=lambda x: int(x[0], 16)):
-        instr_address, _ = instr_key
+    instruction_list = ["00" + instr for instr in instruction_list]
+
+    for instr in instruction_list:
+        instr_address = instr
+        matched_keys = [(key, deps) for key, deps in all_dependencies.items() if key[0] == instr_address]
+        
         node_name = 'n{}'.format(node_counter)
         address_to_node[instr_address] = node_name
         formatted_address = instr_address.lstrip('0')
-        dd_labels = ', '.join(['0x{}'.format(addr.lstrip('0')) if addr != 'START' else 'START' for addr in all_dependencies[instr_key]['DD']]) if all_dependencies[instr_key]['DD'] else ''
-        dot_graph += ' {} [label = "0x{}; DD: {}"];\n'.format(node_name, formatted_address, dd_labels)
+
+        if matched_keys:
+            for instr_key, deps in matched_keys:
+                dd_labels = ', '.join(['0x{}'.format(addr.lstrip('0')) if addr != 'START' else 'START' for addr in deps['DD']]) if deps['DD'] else ''
+                dot_graph += ' {} [label = "0x{}; DD: {}"];\n'.format(node_name, formatted_address, dd_labels)
+
+                for dep_address in deps['DD']:
+                    if dep_address in address_to_node:
+                        dep_node = address_to_node[dep_address]
+                    else:
+                        dep_node = "n0"
+                    edges.append((dep_address, instr_address))
+        else:
+            dot_graph += ' {} [label = "0x{}; DD:"];\n'.format(node_name, formatted_address)
+        
         node_counter += 1
 
-        for dep_address in all_dependencies[instr_key]['DD']:
-            dep_node = address_to_node.get(dep_address, "n0")
-            edges.append((instr_address, dep_address))
-
-    # Separate nodes from edges with an empty line for clarity
     dot_graph += '\n'
 
-    # Sort edges by the source instruction address before adding them to the graph
-    for src_address, dep_address in sorted(edges, key=lambda x: int(x[0], 16)):
-        src_node = address_to_node[src_address]
+    for dep_address, src_address in sorted(edges, key=lambda x: int(x[1], 16)):
         dep_node = address_to_node.get(dep_address, "n0")
+        src_node = address_to_node[src_address]
         dot_graph += ' {} -> {};\n'.format(src_node, dep_node)
 
     dot_graph += '}\n'
@@ -520,43 +561,49 @@ def process_functions():
     functions = function_manager.getFunctions(True)
 
     for func in functions:
-        #if func.getName() == "FUN_004019eb":
-        #if func.getName() == "FUN_00401406":
-        #if func.getName() == "FUN_00402292":
-        if func.getName() == "FUN_00401078": # Special Case: The entry block is the ret block.
-            functions_count += 1
-            def_use_graph = collect_instructions(func)
-            print(def_use_graph)
-            def_use_result += def_use_graph + "\n\n"
+        functions_count += 1
+        instruction_list, def_use_graph = collect_instructions(func)
+        #print(def_use_graph)
+        def_use_result += def_use_graph + "\n\n"
             
-            ret_blocks = find_ret_blocks(func)
-            print("ret_blocks: {}".format(ret_blocks))
+        ret_blocks = find_ret_blocks(func)
+        #print("ret_blocks: {}".format(ret_blocks))
 
-            all_paths = reverse_traverse_cfg(func, ret_blocks)
-            all_dependencies = compute_data_dependencies(all_paths, instruction_def_use)
-            DD_graph = generate_DD_dot_graph(func, all_dependencies)
-            print(DD_graph)
-            DD_result += DD_graph + "\n\n"
+        all_paths = reverse_traverse_cfg(func, ret_blocks)
+        all_dependencies = compute_data_dependencies(all_paths, instruction_def_use)
+        DD_graph = generate_DD_dot_graph(func, instruction_list, all_dependencies)
+        #print(DD_graph)
+        DD_result += DD_graph + "\n\n"
 
     return def_use_result, DD_result
+
 
 def main():
 
     try:
         def_use_result, DD_result = process_functions()
         print("{} functions, {} addresses, {} instructions processed.".format(functions_count, addresses_count,
-                                                                              instructions_count))
+                                                                          instructions_count))
         # Define the file path to the Desktop directory
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-        file_path = os.path.join(desktop_path, "submission.dot")
+    
+        # Paths for both files
+        submission_file_path = os.path.join(desktop_path, "submission.dot")
+        def_use_submission_file_path = os.path.join(desktop_path, "def_use_submission.dot")
 
-        # Attempt to write content to the file
-        with open(file_path, "w") as file:
-            file.write(DD_result)
+        # Attempt to write content to the submission.dot file
+        with open(submission_file_path, "w") as submission_file:
+            submission_file.write(DD_result)
         print("submission.dot created.")
+    
+        # Attempt to write content to the def_use_submission.dot file
+        with open(def_use_submission_file_path, "w") as def_use_file:
+            def_use_file.write(def_use_result)
+        print("def_use_submission.dot created.")
 
     except Exception as e:
-        raise Exception("Failed to create submission.dot. Error: {}".format(e))
+        raise Exception("Failed to create files. Error: {}".format(e))
+
         
 if __name__ == '__main__':
     main()
