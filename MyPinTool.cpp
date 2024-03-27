@@ -12,7 +12,7 @@
 // .rsrc  [start: 0x405000, end: 0x4053ff]
 
 std::ofstream OutFile;
-bool instrumentationEnabled = false; // Global flag to control instrumentation
+bool instrumentationEnabled = true; // Global flag to control instrumentation
 
 ADDRINT binaryStart = 0;
 ADDRINT binaryEnd = 0;
