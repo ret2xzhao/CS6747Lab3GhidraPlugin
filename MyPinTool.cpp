@@ -1,6 +1,8 @@
 #include "pin.H"
 #include <iostream>
 #include <fstream>
+#include <map>
+#include <set>
 
 // Imagebase: 0x400000L
 // Headers[start: 0x400000, end: 0x4003ff]
@@ -15,7 +17,8 @@ bool instrumentationEnabled = false; // Global flag to control instrumentation
 ADDRINT binaryStart = 0;
 ADDRINT binaryEnd = 0;
 ADDRINT targetAddress = 0x40297D; // The target address to start instrumentation
-
+ADDRINT prevInstruction = 0; // Address of the previous instruction
+std::map<ADDRINT, std::set<ADDRINT>> controlFlowGraph; // Map of instruction addresses to subsequent instruction addresses
 
 // Callback function to be called for every instruction
 VOID Instruction(INS ins, VOID* v)
@@ -25,13 +28,17 @@ VOID Instruction(INS ins, VOID* v)
     // Check if the instruction is within the main binary range
     if (insAddress >= binaryStart && insAddress <= binaryEnd) {
         // Check the instruction address against the target address
-        if (insAddress == targetAddress) {
-            instrumentationEnabled = true;
-        }
+        //if (insAddress == targetAddress) {
+        //    instrumentationEnabled = true;
+        //}
 
         // If instrumentation is enabled, perform instrumentation logic
         if (instrumentationEnabled) {
-            // Instrumentation logic here
+            // If there is a previous instruction, update the control flow graph
+            if (prevInstruction != 0) {
+                controlFlowGraph[prevInstruction].insert(insAddress);
+            }
+            prevInstruction = insAddress; // Update the previous instruction to the current one
         }
     }
 }
@@ -52,7 +59,20 @@ VOID ImageLoad(IMG img, VOID* v)
 VOID Fini(INT32 code, VOID* v)
 {
     OutFile << "digraph controlflow {" << std::endl;
-    // Place for control flow graph here
+
+    // Add the start and end address as a special node or comment
+    OutFile << "// Start Address: " << std::hex << binaryStart << std::endl;
+    OutFile << "// End Address: " << std::hex << binaryEnd << std::endl;
+
+    // Add an extra newline for readability
+    OutFile << std::endl;
+
+    // Iterate through the control flow graph and print edges
+    for (const auto& pair : controlFlowGraph) {
+        for (const auto& dest : pair.second) {
+            OutFile << "\"" << std::hex << pair.first << "\" -> \"" << std::hex << dest << "\";" << std::endl;
+        }
+    }
     OutFile << "}" << std::endl;
     OutFile.close();
 }
