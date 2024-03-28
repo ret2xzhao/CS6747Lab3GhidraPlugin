@@ -12,7 +12,7 @@
 // .rsrc  [start: 0x405000, end: 0x4053ff]
 
 std::ofstream OutFile;
-bool instrumentationEnabled = true; // Global flag to control instrumentation
+bool instrumentationEnabled = false; // Global flag to control instrumentation
 
 ADDRINT binaryStart = 0;
 ADDRINT binaryEnd = 0;
@@ -28,9 +28,9 @@ VOID Instruction(INS ins, VOID* v)
     // Check if the instruction is within the main binary range
     if (insAddress >= binaryStart && insAddress <= binaryEnd) {
         // Check the instruction address against the target address
-        //if (insAddress == targetAddress) {
-        //    instrumentationEnabled = true;
-        //}
+        if (insAddress == targetAddress) {
+            instrumentationEnabled = true;
+        }
 
         // If instrumentation is enabled, perform instrumentation logic
         if (instrumentationEnabled) {
@@ -61,19 +61,19 @@ VOID Fini(INT32 code, VOID* v)
     OutFile << "digraph controlflow {" << std::endl;
 
     // Add the start and end address as a special node or comment
-    OutFile << "// Start Address: " << std::hex << binaryStart << std::endl;
-    OutFile << "// End Address: " << std::hex << binaryEnd << std::endl;
+    //OutFile << "// Start Address: " << std::hex << binaryStart << std::endl;
+    //OutFile << "// End Address: " << std::hex << binaryEnd << std::endl;
 
     // Add an extra newline for readability
-    OutFile << std::endl;
+    //OutFile << std::endl;
 
     // Iterate through the control flow graph and print edges
     for (const auto& pair : controlFlowGraph) {
         for (const auto& dest : pair.second) {
-            OutFile << "\"" << std::hex << pair.first << "\" -> \"" << std::hex << dest << "\";" << std::endl;
+            OutFile << "     \"0x" << std::hex << pair.first << "\" -> \"0x" << std::hex << dest << "\";" << std::endl;
         }
     }
-    OutFile << "}" << std::endl;
+    OutFile << "  }" << std::endl;
     OutFile.close();
 }
 
