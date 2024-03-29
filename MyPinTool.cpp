@@ -3,6 +3,7 @@
 #include <fstream>
 #include <map>
 #include <set>
+#include <stack>
 
 // Imagebase: 0x400000L
 // Headers[start: 0x400000, end: 0x4003ff]
@@ -19,30 +20,59 @@ ADDRINT binaryEnd = 0;
 ADDRINT targetAddress = 0x40297D; // The target address to start instrumentation
 ADDRINT prevInstruction = 0; // Address of the previous instruction
 std::map<ADDRINT, std::set<ADDRINT>> controlFlowGraph; // Map of instruction addresses to subsequent instruction addresses
+std::stack<ADDRINT> callStack; // Stack to track return addresses for calls
 
-// Callback function to be called for every instruction
+
 VOID Instruction(INS ins, VOID* v)
 {
     ADDRINT insAddress = INS_Address(ins);
 
-    // Check if the instruction is within the main binary range
+    // Ensure the instruction is within the main binary range
     if (insAddress >= binaryStart && insAddress <= binaryEnd) {
-        // Check the instruction address against the target address
+        // Enable instrumentation at the target address (WinMain function)
         if (insAddress == targetAddress) {
             instrumentationEnabled = true;
         }
 
-        // If instrumentation is enabled, perform instrumentation logic
+        // Perform instrumentation logic if enabled
         if (instrumentationEnabled) {
-            // If there is a previous instruction, update the control flow graph
+            // Instrumentation for all instructions to ensure linear execution is tracked
             if (prevInstruction != 0) {
+                // Link the current instruction with the previous one unless it's the start
                 controlFlowGraph[prevInstruction].insert(insAddress);
             }
-            prevInstruction = insAddress; // Update the previous instruction to the current one
+
+            // For call instructions, push the return address onto the stack and link in CFG
+            if (INS_IsCall(ins)) {
+                ADDRINT returnAddress = INS_NextAddress(ins);
+                callStack.push(returnAddress);
+                controlFlowGraph[insAddress].insert(returnAddress);
+            }
+            // For return instructions, pop the return address from the stack and link it
+            else if (INS_IsRet(ins) && !callStack.empty()) {
+                ADDRINT returnToAddress = callStack.top();
+                callStack.pop();
+                // Link return instruction to the actual return address
+                controlFlowGraph[insAddress].insert(returnToAddress);
+            }
+
+            // Handling direct and indirect branches
+            if (INS_IsBranchOrCall(ins)) {
+                if (INS_HasFallThrough(ins)) {
+                    // Fall-through path for branches that can continue to the next instruction
+                    controlFlowGraph[insAddress].insert(INS_NextAddress(ins));
+                }
+                else if (INS_IsDirectBranchOrCall(ins)) {
+                    // Direct branch/call
+                    controlFlowGraph[insAddress].insert(INS_DirectBranchOrCallTargetAddress(ins));
+                }
+            }
+
+            // Update the previous instruction address for the next iteration
+            prevInstruction = insAddress;
         }
     }
 }
-
 
 // This function is called when an image is loaded
 VOID ImageLoad(IMG img, VOID* v)
