@@ -7,14 +7,11 @@ path_to_dot_file = 'C:/Repo/cs6747/submission.dot'
 # Load the graph from the specified DOT file
 graph = read_dot(path_to_dot_file)
 
-# Reverse the graph to prepare for finding post-dominators
-reversed_graph = graph.reverse()
+# Calculate the immediate post-dominators of the reversed graph
+post_dominators = nx.immediate_dominators(graph.reverse(), "0x4019fc")
 
-# Define the start node for post-dominator calculation
-start_node = '0x40101c'  # Start node identifier
+with open('post_dominators.txt', 'w') as file:
+    for node, dominator in post_dominators.items():
+        file.write(f"{node} {dominator}\n")
 
-# Calculate the immediate post-dominators of the graph from the start node
-post_dominators = nx.immediate_dominators(reversed_graph, start_node)
-
-# Print the post dominators
 print(post_dominators)
